@@ -30,6 +30,8 @@ const projects = [
     type: "GAME / IN DEVELOPMENT",
     description: "A chaotic social-deduction party game where villagers brawl, accuse, and survive to expose the monsters hiding among them.",
     href: "https://notmonsters.actuator.games/",
+    image: "/projects/not-monsters.png",
+    imageAlt: "Not Monsters characters accusing each other in a medieval village",
   },
   {
     index: "02",
@@ -37,6 +39,8 @@ const projects = [
     type: "CREATOR TOOLS",
     description: "Interactive stream tools, overlays, goal tracking, and playful systems built to bring audiences into the action.",
     href: "https://basedstreamtools.com/",
+    image: "/projects/based-stream-tools.jpg",
+    imageAlt: "BasedCode stream showing a custom integration and live stream overlays",
   },
   {
     index: "03",
@@ -44,6 +48,8 @@ const projects = [
     type: "VR GAME",
     description: "An arcade-inspired VR first-person shooter packed with rapid-fire, WarioWare-style shooting minigames.",
     href: "https://onpoint.games/",
+    image: "/projects/on-point.jpg",
+    imageAlt: "On Point VR game artwork with arcade targets and colourful blasters",
   },
 ];
 
@@ -129,7 +135,10 @@ export default function Home() {
           <div className="project-list">
             {projects.map((project) => (
               <a className="project-card" href={project.href} target="_blank" rel="noreferrer" key={project.name}>
-                <span className="project-index">{project.index}</span>
+                <span className="project-image">
+                  <img src={project.image} alt={project.imageAlt} loading="lazy" />
+                  <span className="project-index">{project.index}</span>
+                </span>
                 <div className="project-copy"><small>{project.type}</small><h3>{project.name}</h3><p>{project.description}</p></div>
                 <span className="project-open"><FiArrowUpRight aria-hidden="true" /></span>
               </a>
