@@ -141,12 +141,24 @@ export default function Home() {
         </section>
 
         <section className="about-section" id="about" aria-labelledby="about-title">
-          <div className="about-mark" aria-hidden="true"><span>&lt;/</span>BC</div>
+          <div className="about-visual" aria-hidden="true">
+            <div className="about-mark">
+              <span className="about-mark-corner">BC / 03</span>
+              <div className="about-monogram"><span>&lt;/</span><strong>BC</strong></div>
+              <div className="about-mark-meta"><span>creator / community</span><span>build · play · learn</span></div>
+            </div>
+            <div className="about-signal"><span><i /> Signal active</span><span>Always shipping</span></div>
+          </div>
           <div className="about-copy">
             <p className="eyebrow">03 / BasedCode</p>
             <h2 id="about-title">Real work.<br />Useful lessons.<br />No guru theatre.</h2>
-            <p>BasedCode is Seb Fehr’s creator and technology brand. It turns active game and software production into useful, entertaining content through live development, technical explanation, honest experiments, and visible outcomes.</p>
-            <div className="principles"><span><FiCode /> Build</span><span><FiPlay /> Play</span><span><FiRadio /> Learn live</span></div>
+            <p className="about-lede">BasedCode is Seb Fehr’s creator and technology brand. It turns active game and software production into useful, entertaining content through live development, technical explanation, honest experiments, and visible outcomes.</p>
+            <p className="about-meta">Hosted by Seb <span>/</span> Creator-led <span>/</span> Community-minded</p>
+            <div className="principles">
+              <span><FiCode aria-hidden="true" /><strong>Build</strong><small>Ship real things</small></span>
+              <span><FiPlay aria-hidden="true" /><strong>Play</strong><small>Test through making</small></span>
+              <span><FiRadio aria-hidden="true" /><strong>Learn live</strong><small>Show the reasoning</small></span>
+            </div>
           </div>
         </section>
       </main>
