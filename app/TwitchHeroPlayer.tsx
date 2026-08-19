@@ -9,8 +9,8 @@ const CHANNEL = "basedcode";
 const CHANNEL_URL = "https://www.twitch.tv/basedcode";
 const VIDEOS_URL = "https://www.twitch.tv/basedcode/videos?filter=archives&sort=time";
 const LATEST_VOD_URL = "https://decapi.me/twitch/videos/basedcode";
-// At 520px, the hero and card gutters still leave the player more than 400px wide.
-const EMBED_MIN_VIEWPORT = 520;
+// At 640px, the hero and card gutters leave enough room for a compliant 16:9 player.
+const EMBED_MIN_VIEWPORT = 640;
 
 type Vod = { id: string; title: string; url: string };
 type PlayerStatus = "loading" | "live" | "vod" | "offline" | "error";
