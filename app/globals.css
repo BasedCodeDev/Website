@@ -91,7 +91,7 @@ section:not(.hero) { padding: 110px clamp(24px, 7vw, 112px); }
 .projects-section { border-top: 1px solid var(--line); background: var(--panel); }
 .section-heading.horizontal { grid-template-columns: 1.25fr .75fr; }
 .project-list { border-top: 1px solid var(--line); }
-.project-card { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1fr) auto; gap: clamp(24px, 4vw, 62px); align-items: center; padding: 30px 10px; border-bottom: 1px solid var(--line); transition: padding .35s cubic-bezier(.22,1,.36,1), background .25s ease; }
+.project-card { display: grid; grid-template-columns: minmax(190px, 230px) minmax(0, 1fr) auto; gap: clamp(24px, 3vw, 42px); align-items: center; padding: 26px 10px; border-bottom: 1px solid var(--line); transition: padding .35s cubic-bezier(.22,1,.36,1), background .25s ease; }
 .project-card:hover { padding-left: 24px; padding-right: 24px; background: var(--panel-raised); }
 .project-image { position: relative; aspect-ratio: 16 / 9; display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: var(--canvas); }
 .project-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(29,10,37,.35), transparent 52%, rgba(131,71,143,.18)); background-size: 220% 220%; animation: gradient-drift 9s ease-in-out infinite; transition: opacity .35s ease; }
@@ -145,7 +145,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .social-grid { grid-template-columns: 1fr; }
   .social-primary { grid-column: auto; }
   .project-card { grid-template-columns: 1fr; gap: 22px; padding: 28px 0; }
-  .project-image { width: 100%; }
+  .project-image { width: min(72vw, 240px); }
   .project-open { display: none; }
   .project-copy h3 { font-size: 2rem; }
   .about-section { grid-template-columns: 1fr; }
