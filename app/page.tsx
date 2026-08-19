@@ -107,7 +107,7 @@ export default function Home() {
         <section className="social-section" id="socials" aria-labelledby="social-title">
           <div className="section-heading">
             <p className="eyebrow">01 / Find the signal</p>
-            <h2 id="social-title">Watch. Follow.<br />Build with us.</h2>
+            <h2 id="social-title">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
             <p>Twitch is the main stage. Everywhere else keeps the work, clips, code, and community moving between streams.</p>
           </div>
           <div className="social-grid">
