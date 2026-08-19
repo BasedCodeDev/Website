@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
 import { FiArrowDown, FiArrowUpRight, FiCode, FiMoon, FiPlay, FiRadio, FiSun } from "react-icons/fi";
+import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 
 declare global {
   interface Window {
@@ -100,14 +101,7 @@ export default function Home() {
             </div>
           </div>
 
-          <a className="stream-card" href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer" aria-label="Visit BasedCode on Twitch">
-            <div className="stream-topline"><span><FiRadio aria-hidden="true" /> TWITCH / BASEDCODE</span><span>LIVE BUILDS</span></div>
-            <div className="stream-window">
-              <div className="code-lines" aria-hidden="true"><span>const idea = build();</span><span>while (!shipped) iterate();</span><span>learn(result);</span></div>
-              <span className="play"><FiPlay aria-hidden="true" /></span>
-            </div>
-            <div className="stream-footer"><strong>Come watch the work happen.</strong><span>twitch.tv/basedcode <FiArrowUpRight aria-hidden="true" /></span></div>
-          </a>
+          <TwitchHeroPlayer />
         </section>
 
         <section className="social-section" id="socials" aria-labelledby="social-title">
