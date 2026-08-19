@@ -3,13 +3,14 @@
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
-import { FiArrowDown, FiArrowUpRight, FiCode, FiMoon, FiPlay, FiRadio, FiSun } from "react-icons/fi";
+import { FiArrowDown, FiArrowUpRight, FiCode, FiMoon, FiPause, FiPlay, FiRadio, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 
 declare global {
   interface Window {
     TextRipple?: {
       scrambleReveal: (element: Element, options?: { duration?: number; delay?: number; preserveText?: boolean }) => Promise<void>;
+      cancelAnimations?: () => void;
     };
   }
 }
@@ -56,10 +57,12 @@ const projects = [
 
 export default function Home() {
   const [light, setLight] = useState(false);
+  const [motion, setMotion] = useState(true);
   const heroTitle = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     setLight(window.localStorage.getItem("basedcode-theme") === "light");
+    setMotion(window.localStorage.getItem("basedcode-motion") !== "off");
   }, []);
 
   const toggleTheme = () => {
@@ -71,21 +74,40 @@ export default function Home() {
   };
 
   const runHeroRipple = () => {
-    if (heroTitle.current && window.TextRipple) {
+    if (motion && heroTitle.current && window.TextRipple) {
       window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
     }
   };
 
+  const toggleMotion = () => {
+    setMotion((current) => {
+      const next = !current;
+      window.localStorage.setItem("basedcode-motion", next ? "on" : "off");
+      if (next) window.setTimeout(() => {
+        if (heroTitle.current && window.TextRipple) {
+          window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
+        }
+      }, 0);
+      else window.TextRipple?.cancelAnimations?.();
+      return next;
+    });
+  };
+
   return (
-    <div className={`site ${light ? "light" : "dark"}`}>
+    <div className={`site ${light ? "light" : "dark"} ${motion ? "motion-on" : "motion-off"}`}>
       <Script src="/text-ripple.js" strategy="afterInteractive" onLoad={runHeroRipple} />
 
       <header className="topbar">
         <a className="brand" href="#top" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Primary navigation"><a href="#socials">Socials</a><a href="#projects">Projects</a><a href="#about">About</a></nav>
-        <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${light ? "dark" : "light"} theme`}>
-          {light ? <FiMoon aria-hidden="true" /> : <FiSun aria-hidden="true" />}<span>{light ? "Dark" : "Light"}</span>
-        </button>
+        <div className="topbar-controls">
+          <button className="motion-toggle" type="button" onClick={toggleMotion} aria-label={motion ? "Pause motion" : "Play motion"} aria-pressed={!motion}>
+            {motion ? <FiPause aria-hidden="true" /> : <FiPlay aria-hidden="true" />}<span>{motion ? "Pause" : "Play"}</span>
+          </button>
+          <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${light ? "dark" : "light"} theme`}>
+            {light ? <FiMoon aria-hidden="true" /> : <FiSun aria-hidden="true" />}<span>{light ? "Dark" : "Light"}</span>
+          </button>
+        </div>
       </header>
 
       <main id="top">
