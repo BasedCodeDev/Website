@@ -99,6 +99,16 @@ export default function Home() {
               <a className="button button-primary" href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer"><SiTwitch aria-hidden="true" /> Watch on Twitch <FiArrowUpRight aria-hidden="true" /></a>
               <a className="button button-secondary" href="#socials">Find BasedCode <FiArrowDown aria-hidden="true" /></a>
             </div>
+            <nav className="hero-socials" aria-label="BasedCode social profiles">
+              <span>Find us</span>
+              <div>
+                {socials.map(({ name, href, icon: Icon }) => (
+                  <a href={href} target="_blank" rel="noreferrer" aria-label={`BasedCode on ${name}`} title={name} key={name}>
+                    <Icon aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </nav>
           </div>
 
           <TwitchHeroPlayer />
