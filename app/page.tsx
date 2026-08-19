@@ -48,8 +48,8 @@ const projects = [
     type: "VR GAME",
     description: "An arcade-inspired VR first-person shooter packed with rapid-fire, WarioWare-style shooting minigames.",
     href: "https://onpoint.games/",
-    image: "/projects/on-point.jpg",
-    imageAlt: "On Point VR game artwork with arcade targets and colourful blasters",
+    image: "/projects/on-point-environment.jpg",
+    imageAlt: "A moonlit castle environment from On Point",
   },
 ];
 
