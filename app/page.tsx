@@ -151,7 +151,7 @@ export default function Home() {
       <footer>
         <a className="brand" href="#top"><span>Based</span>Code<span className="slash">/</span></a>
         <p>Building games, software, and creative technology in public.</p>
-        <a href="mailto:hello@basedcode.dev">hello@basedcode.dev <FiArrowUpRight aria-hidden="true" /></a>
+        <a href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer">Watch on Twitch <FiArrowUpRight aria-hidden="true" /></a>
       </footer>
     </div>
   );
