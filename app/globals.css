@@ -96,11 +96,14 @@ button { font: inherit; }
 .vod-browser-header a { display: inline-flex; align-items: center; gap: 5px; color: #d7c9dd; transition: color .2s ease; }
 .vod-browser-header a:hover { color: #fff; }
 .vod-buttons { display: flex; gap: 7px; overflow-x: auto; padding: 1px 1px 5px; scrollbar-color: rgba(255,255,255,.28) transparent; scrollbar-width: thin; }
-.vod-choice { min-width: 0; flex: 1 0 145px; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; padding: 9px 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; color: #d7c9dd; background: rgba(255,255,255,.035); text-align: left; cursor: pointer; transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
+.vod-choice { min-width: 0; flex: 1 0 160px; display: grid; grid-template-columns: 52px minmax(0,1fr); align-items: center; gap: 8px; padding: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; color: #d7c9dd; background: rgba(255,255,255,.035); text-align: left; cursor: pointer; transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
 .vod-choice:hover, .vod-choice:focus-visible { transform: translateY(-2px); border-color: rgba(255,255,255,.5); color: #fff; background: rgba(255,255,255,.08); outline: none; }
 .vod-choice.is-active { border-color: rgba(181,104,194,.9); color: #fff; background: rgba(131,71,143,.3); box-shadow: inset 0 0 0 1px rgba(181,104,194,.18); }
-.vod-choice > span { color: #b568c2; font-size: .52rem; font-weight: 800; }
-.vod-choice > strong { min-width: 0; overflow: hidden; font-size: .57rem; font-weight: 600; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.vod-thumbnail { width: 52px; aspect-ratio: 16 / 9; display: grid; place-items: center; overflow: hidden; border-radius: 5px; color: #d7c9dd; background: linear-gradient(135deg, #2d1540, #663674); font-size: .76rem; }
+.vod-thumbnail img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.vod-choice-copy { min-width: 0; display: grid; gap: 2px; }
+.vod-choice-copy small { color: #b568c2; font-size: .46rem; font-weight: 800; }
+.vod-choice-copy strong { min-width: 0; display: -webkit-box; overflow: hidden; font-size: .52rem; font-weight: 600; line-height: 1.28; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .vod-browser-empty { min-height: 34px; display: flex; align-items: center; margin: 0; color: #a995b2; font-size: .58rem; }
 
 section:not(.hero) { padding: 110px clamp(24px, 7vw, 112px); }

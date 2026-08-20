@@ -25,6 +25,7 @@ test("keeps required static assets in the Pages artifact", async () => {
     "dist/client/favicon.svg",
     "dist/client/og.png",
     "dist/client/text-ripple.js",
+    "dist/client/twitch-vods.json",
     "dist/client/about/seb-live-build.jpg",
     "dist/client/projects/not-monsters.png",
     "dist/client/projects/based-stream-tools.jpg",
@@ -32,4 +33,14 @@ test("keeps required static assets in the Pages artifact", async () => {
   ];
 
   await Promise.all(requiredAssets.map((asset) => access(new URL(asset, projectRoot))));
+});
+
+test("exports small Twitch thumbnails for recent VODs", async () => {
+  const vods = JSON.parse(await readFile(new URL("../dist/client/twitch-vods.json", import.meta.url), "utf8"));
+
+  assert.ok(Array.isArray(vods) && vods.length > 1);
+  for (const vod of vods) {
+    assert.match(vod.url, /^https:\/\/www\.twitch\.tv\/videos\/\d+$/);
+    if (vod.thumbnailUrl) assert.match(vod.thumbnailUrl, /^https:\/\/static-cdn\.jtvnw\.net\/.*-160x90\.jpg$/);
+  }
 });

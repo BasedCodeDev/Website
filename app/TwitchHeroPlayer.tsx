@@ -12,7 +12,7 @@ const RECENT_VODS_URL = "https://decapi.me/twitch/videos/basedcode?limit=5&separ
 // At 640px, the hero and card gutters leave enough room for a compliant 16:9 player.
 const EMBED_MIN_VIEWPORT = 640;
 
-type Vod = { id: string; title: string; url: string };
+type Vod = { id: string; title: string; url: string; thumbnailUrl?: string };
 type PlayerStatus = "loading" | "live" | "vod" | "offline" | "error";
 
 type TwitchPlayerInstance = {
@@ -59,10 +59,66 @@ export function parseLatestVod(response: string): Vod | null {
   return parseRecentVods(response)[0] ?? null;
 }
 
-async function requestRecentVods(): Promise<Vod[]> {
+async function requestCurrentVods(): Promise<Vod[]> {
   const response = await fetch(RECENT_VODS_URL, { cache: "no-store" });
   if (!response.ok) throw new Error(`Recent VOD request failed with ${response.status}`);
   return parseRecentVods(await response.text());
+}
+
+async function requestCachedVods(): Promise<Vod[]> {
+  const response = await fetch("/twitch-vods.json", { cache: "no-store" });
+  if (!response.ok) throw new Error(`VOD thumbnail cache failed with ${response.status}`);
+
+  const data: unknown = await response.json();
+  if (!Array.isArray(data)) return [];
+
+  return data.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const vod = entry as Record<string, unknown>;
+    if (
+      typeof vod.id !== "string"
+      || !/^\d+$/.test(vod.id)
+      || typeof vod.title !== "string"
+      || typeof vod.url !== "string"
+      || vod.url !== `https://www.twitch.tv/videos/${vod.id}`
+    ) return [];
+
+    const thumbnailUrl = typeof vod.thumbnailUrl === "string" && vod.thumbnailUrl.startsWith("https://static-cdn.jtvnw.net/")
+      ? vod.thumbnailUrl
+      : undefined;
+    return [{ id: vod.id, title: vod.title, url: vod.url, thumbnailUrl }];
+  }).slice(0, 5);
+}
+
+async function requestRecentVods(): Promise<Vod[]> {
+  const [currentResult, cacheResult] = await Promise.allSettled([requestCurrentVods(), requestCachedVods()]);
+  const cachedVods = cacheResult.status === "fulfilled" ? cacheResult.value : [];
+  if (currentResult.status === "rejected") {
+    if (cachedVods.length) return cachedVods;
+    throw currentResult.reason;
+  }
+
+  const cachedById = new Map(cachedVods.map((vod) => [vod.id, vod]));
+  return currentResult.value.map((vod) => ({ ...vod, thumbnailUrl: cachedById.get(vod.id)?.thumbnailUrl }));
+}
+
+function VodChoiceContents({ vod, index }: { vod: Vod; index: number }) {
+  return (
+    <>
+      <span className="vod-thumbnail" aria-hidden="true">
+        {vod.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={vod.thumbnailUrl} alt="" width="160" height="90" loading="lazy" decoding="async" />
+        ) : (
+          <SiTwitch />
+        )}
+      </span>
+      <span className="vod-choice-copy">
+        <small>{String(index + 1).padStart(2, "0")}</small>
+        <strong>{vod.title}</strong>
+      </span>
+    </>
+  );
 }
 
 export function TwitchHeroPlayer() {
@@ -264,8 +320,7 @@ export function TwitchHeroPlayer() {
                 rel="noreferrer"
                 title={vod.title}
               >
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{vod.title}</strong>
+                <VodChoiceContents vod={vod} index={index} />
               </a>
             ) : (
               <button
@@ -276,8 +331,7 @@ export function TwitchHeroPlayer() {
                 aria-pressed={activeVodId === vod.id}
                 title={`Load ${vod.title}`}
               >
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{vod.title}</strong>
+                <VodChoiceContents vod={vod} index={index} />
               </button>
             ))}
           </div>
