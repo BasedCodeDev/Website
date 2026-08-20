@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
-import { FiArrowUpRight, FiCode, FiMoon, FiPause, FiPlay, FiRadio, FiSun } from "react-icons/fi";
+import { FiArrowDown, FiArrowUpRight, FiCode, FiMoon, FiPause, FiPlay, FiRadio, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 
 declare global {
@@ -116,10 +116,10 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow"><span className="status-dot" /> Building in public</p>
             <h1 id="hero-title" ref={heroTitle}>Build it.<br /><span>Play it.</span><br />Learn it.</h1>
-            <p className="hero-intro">Games, software, and AI experiments built in public—so you can see the decisions, learn from the mess, and build alongside us.</p>
+            <p className="hero-intro">Games, software, AI experiments, and the honest decisions behind shipping real things.</p>
             <div className="hero-actions">
               <a className="button button-primary" href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer"><SiTwitch aria-hidden="true" /> Watch a build <FiArrowUpRight aria-hidden="true" /></a>
-              <a className="button button-secondary" href="https://discord.gg/rxJufPTM2" target="_blank" rel="noreferrer"><SiDiscord aria-hidden="true" /> Join the Discord</a>
+              <a className="button button-secondary" href="#socials">Find BasedCode <FiArrowDown aria-hidden="true" /></a>
             </div>
             <nav className="hero-socials" aria-label="BasedCode social profiles">
               <span>Find us</span>
