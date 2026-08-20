@@ -156,7 +156,7 @@ export default function Home() {
         <section className="about-section" id="about" aria-labelledby="about-title">
           <div className="about-visual">
             <div className="about-photo">
-              <img src="/about/seb-workshop.png" alt="Seb working during a BasedCode build." loading="lazy" />
+              <img src="/about/seb-workshop.jpg" alt="Seb working with fellow developers during a live PC build event." loading="lazy" />
               <span className="about-photo-tag">REAL WORK / OPEN WORKSHOP</span>
               <div className="about-photo-meta" aria-hidden="true">
                 <span>SEB FEHR / BASEDCODE</span>
