@@ -117,7 +117,7 @@ export default function Home() {
         section.querySelectorAll<HTMLElement>("[data-reveal-item]").forEach((item, index) => {
           item.classList.remove("motion-visible");
           item.classList.add("motion-pending");
-          item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
+          item.style.setProperty("--reveal-delay", `${Math.min(index * 45, 180)}ms`);
           revealItems.push(item);
         });
       });
@@ -131,7 +131,7 @@ export default function Home() {
           entry.target.classList.add("motion-visible");
           revealObserver?.unobserve(entry.target);
         });
-      }, { rootMargin: "0px 0px -10% 0px", threshold: 0.08 });
+      }, { rootMargin: "0px 0px -2% 0px", threshold: 0.01 });
       revealItems.forEach((item) => revealObserver?.observe(item));
     };
 
@@ -175,7 +175,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`site ${light ? "light" : "dark"}`}>
+    <div className={`site ${light ? "light" : "dark"} ${motionEnabled ? "motion-enabled motion-forced" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Primary navigation"><a href="#socials">Start here</a><a href="#projects">Projects</a><a href="#about">About</a></nav>

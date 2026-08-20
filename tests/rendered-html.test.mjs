@@ -11,6 +11,7 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /<title>BasedCode — Together, we build\.<\/title>/i);
   assert.match(html, /<script[^>]+src="\/text-ripple\.js"/i);
   assert.match(html, /aria-label="Pause motion"/i);
+  assert.match(html, /site dark motion-enabled motion-forced/);
   assert.match(html, /data-reveal-section/);
   assert.match(html, /data-reveal-item/);
   assert.match(html, /Together, we/);
