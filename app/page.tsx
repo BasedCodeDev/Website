@@ -199,7 +199,14 @@ export default function Home() {
 
       <footer>
         <a className="brand" href="#top"><span>Based</span>Code<span className="slash">/</span></a>
-        <p>Building games, software, and creative technology in public—together.<span className="footer-studio">Studio work at <a href="https://actuator.digital/" target="_blank" rel="noreferrer">Actuator Digital <FiArrowUpRight aria-hidden="true" /></a></span></p>
+        <p>
+          Building games, software, and creative technology in public—together.
+          <span className="footer-meta">
+            <span className="footer-studio">Studio work at <a href="https://actuator.digital/" target="_blank" rel="noreferrer">Actuator Digital <FiArrowUpRight aria-hidden="true" /></a></span>
+            <span aria-hidden="true">·</span>
+            <a href="https://brand.basedcode.dev/" target="_blank" rel="noreferrer">Brand guide <FiArrowUpRight aria-hidden="true" /></a>
+          </span>
+        </p>
         <a href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer">Watch a build <FiArrowUpRight aria-hidden="true" /></a>
       </footer>
     </div>

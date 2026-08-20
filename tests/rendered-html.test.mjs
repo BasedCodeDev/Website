@@ -19,6 +19,8 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /Not Monsters/);
   assert.match(html, /Based Stream Tools/);
   assert.match(html, /On Point/);
+  assert.match(html, /https:\/\/brand\.basedcode\.dev\//);
+  assert.match(html, /Brand guide/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Building your site/i);
 });
 

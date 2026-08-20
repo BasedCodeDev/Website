@@ -190,9 +190,9 @@ section:not(.hero) { padding: 110px clamp(24px, 7vw, 112px); }
 
 footer { min-height: 170px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; align-items: center; padding: 36px clamp(24px, 7vw, 112px); border-top: 1px solid var(--line); color: var(--muted); background: var(--canvas); font-size: .7rem; }
 footer p { display: grid; gap: 8px; text-align: center; }
-.footer-studio { color: var(--quiet); font-size: .58rem; letter-spacing: .04em; }
-.footer-studio a { display: inline-flex; align-items: center; gap: 4px; color: var(--quiet); transition: color .2s ease; }
-.footer-studio a:hover { color: var(--ink); }
+.footer-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px 9px; color: var(--quiet); font-size: .58rem; letter-spacing: .04em; }
+.footer-meta a { display: inline-flex; align-items: center; gap: 4px; color: var(--quiet); transition: color .2s ease; }
+.footer-meta a:hover { color: var(--ink); }
 footer > a:last-child { justify-self: end; display: inline-flex; align-items: center; gap: 7px; color: var(--ink); }
 
 @keyframes gradient-drift { 0%,100% { background-position: 0% 18%; } 28% { background-position: 72% 8%; } 55% { background-position: 100% 82%; } 78% { background-position: 24% 100%; } }
@@ -244,6 +244,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .participation-cues { grid-template-columns: 1fr; }
   footer { grid-template-columns: 1fr; text-align: left; }
   footer p { text-align: left; }
+  .footer-meta { justify-content: flex-start; }
   footer > a:last-child { justify-self: start; }
 }
 @media (prefers-reduced-motion: reduce) {
