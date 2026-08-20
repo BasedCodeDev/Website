@@ -5,6 +5,7 @@ import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } 
 import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
+import * as localRipple from "./textRipple";
 
 declare global {
   interface Window {
@@ -57,28 +58,32 @@ const projects = [
 
 export default function Home() {
   const [light, setLight] = useState(false);
+  const [motionEnabled, setMotionEnabled] = useState(true);
   const heroTitle = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const themeFrame = window.requestAnimationFrame(() => {
       setLight(window.localStorage.getItem("basedcode-theme") === "light");
     });
+    const storedMotion = window.localStorage.getItem("basedcode-motion");
+    const initialMotion = storedMotion ? storedMotion === "on" : !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionFrame = window.requestAnimationFrame(() => setMotionEnabled(initialMotion));
 
     let sectionObserver: IntersectionObserver | null = null;
 
-    const setupRipple = () => {
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && heroTitle.current && window.TextRipple) {
-        window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
+    const setupRipple = (allowMotion: boolean) => {
+      if (!allowMotion) return;
+      const ripple = window.TextRipple ?? localRipple;
+      if (heroTitle.current) {
+        ripple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
       }
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !window.TextRipple) return;
 
       const sectionTitles = Array.from(document.querySelectorAll<HTMLElement>(".section-heading h2[data-ripple], .about-copy h2[data-ripple]"));
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting || !window.TextRipple) return;
+          if (!entry.isIntersecting) return;
           const title = entry.target as HTMLElement;
-          window.TextRipple.scrambleReveal(title, {
+          ripple.scrambleReveal(title, {
             duration: Number(title.dataset.duration || 900),
             preserveText: true,
           });
@@ -89,26 +94,14 @@ export default function Home() {
       sectionTitles.forEach((title) => sectionObserver?.observe(title));
     };
 
-    if (window.TextRipple) {
-      setupRipple();
-      return () => {
-        window.cancelAnimationFrame(themeFrame);
-        sectionObserver?.disconnect();
-        window.TextRipple?.cancelAnimations?.();
-      };
-    }
-
-    const rippleScript = document.createElement("script");
-    rippleScript.src = "/text-ripple.js";
-    rippleScript.async = true;
-    rippleScript.addEventListener("load", setupRipple, { once: true });
-    document.head.appendChild(rippleScript);
+    setupRipple(initialMotion);
 
     return () => {
       window.cancelAnimationFrame(themeFrame);
-      rippleScript.removeEventListener("load", setupRipple);
+      window.cancelAnimationFrame(motionFrame);
       sectionObserver?.disconnect();
       window.TextRipple?.cancelAnimations?.();
+      localRipple.cancelAnimations();
     };
   }, []);
 
@@ -120,12 +113,29 @@ export default function Home() {
     });
   };
 
+  const toggleMotion = () => {
+    setMotionEnabled((current) => {
+      const next = !current;
+      window.localStorage.setItem("basedcode-motion", next ? "on" : "off");
+      if (!next) {
+        window.TextRipple?.cancelAnimations?.();
+        localRipple.cancelAnimations();
+      } else if (heroTitle.current) {
+        (window.TextRipple ?? localRipple).scrambleReveal(heroTitle.current, { duration: 900, preserveText: true });
+      }
+      return next;
+    });
+  };
+
   return (
     <div className={`site ${light ? "light" : "dark"}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Primary navigation"><a href="#socials">Start here</a><a href="#projects">Projects</a><a href="#about">About</a></nav>
         <div className="topbar-controls">
+          <button className="theme-toggle" type="button" onClick={toggleMotion} aria-label={`${motionEnabled ? "Pause" : "Enable"} motion`}>
+            <span>{motionEnabled ? "Motion" : "Motion off"}</span>
+          </button>
           <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${light ? "dark" : "light"} theme`}>
             {light ? <FiMoon aria-hidden="true" /> : <FiSun aria-hidden="true" />}<span>{light ? "Dark" : "Light"}</span>
           </button>

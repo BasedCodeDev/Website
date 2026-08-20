@@ -9,6 +9,8 @@ test("exports the BasedCode homepage for static hosting", async () => {
   const html = await readFile(exportedIndex, "utf8");
 
   assert.match(html, /<title>BasedCode — Together, we build\.<\/title>/i);
+  assert.match(html, /<script[^>]+src="\/text-ripple\.js"/i);
+  assert.match(html, /aria-label="Pause motion"/i);
   assert.match(html, /Together, we/);
   assert.match(html, /id="hero-title"[^>]*data-ripple/);
   assert.match(html, /id="social-title"[^>]*data-ripple/);

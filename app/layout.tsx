@@ -23,5 +23,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body>
+    {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+    <script src="/text-ripple.js" />
+    {children}
+  </body></html>;
 }
