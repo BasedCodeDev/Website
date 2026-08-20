@@ -282,7 +282,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer>
+      <footer className="site-footer">
         <a className="brand" href="#top"><span>Based</span>Code<span className="slash">/</span></a>
         <p>
           Building games, software, and creative technology in public—together.
