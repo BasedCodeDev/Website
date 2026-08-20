@@ -253,17 +253,17 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .site *, .site *::before, .site *::after { transition-duration: .01ms !important; }
-  .hero::before,
-  .hero::after,
-  .hero-grid,
-  .status-dot,
-  .stream-window::before,
-  .stream-loading span,
-  .stream-status.status-live i { animation: none !important; }
-  .hero,
-  .social-primary,
-  .project-image::after,
-  .about-photo,
-  .about-cta { animation-duration: 20s !important; }
+  .site:not(.motion-forced) *, .site:not(.motion-forced) *::before, .site:not(.motion-forced) *::after { transition-duration: .01ms !important; }
+  .site:not(.motion-forced) .hero::before,
+  .site:not(.motion-forced) .hero::after,
+  .site:not(.motion-forced) .hero-grid,
+  .site:not(.motion-forced) .status-dot,
+  .site:not(.motion-forced) .stream-window::before,
+  .site:not(.motion-forced) .stream-loading span,
+  .site:not(.motion-forced) .stream-status.status-live i { animation: none !important; }
+  .site:not(.motion-forced) .hero,
+  .site:not(.motion-forced) .social-primary,
+  .site:not(.motion-forced) .project-image::after,
+  .site:not(.motion-forced) .about-photo,
+  .site:not(.motion-forced) .about-cta { animation-duration: 20s !important; }
 }

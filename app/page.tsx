@@ -77,11 +77,13 @@ export default function Home() {
       const site = document.querySelector<HTMLElement>(".site");
       if (!allowMotion) {
         site?.classList.remove("motion-enabled");
+        site?.classList.remove("motion-forced");
         revealObserver?.disconnect();
         return;
       }
 
       site?.classList.add("motion-enabled");
+      site?.classList.toggle("motion-forced", window.localStorage.getItem("basedcode-motion") === "on");
       const ripple = window.TextRipple ?? localRipple;
       if (heroTitle.current) {
         ripple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
