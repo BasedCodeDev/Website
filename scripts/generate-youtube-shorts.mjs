@@ -2,6 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 
 const SHORTS_PAGE_URL = "https://www.youtube.com/@BasedCode/shorts?hl=en&gl=AU";
 const OUTPUT_FILE = new URL("../public/youtube-shorts.json", import.meta.url);
+const RECENT_POOL_SIZE = 24;
+const SHORTS_LIMIT = 8;
 
 async function readExistingShorts() {
   try {
@@ -21,6 +23,19 @@ function extractInitialData(html) {
   const jsonEnd = html.indexOf(";</script>", jsonStart);
   if (jsonEnd === -1) throw new Error("YouTube initial data was incomplete");
   return JSON.parse(html.slice(jsonStart, jsonEnd));
+}
+
+function parseViewCount(viewText) {
+  if (typeof viewText !== "string") return 0;
+
+  const match = viewText.toLowerCase().replaceAll(",", "").trim().match(/([\d.]+)\s*([kmb])?/);
+  if (!match) return 0;
+
+  const value = Number(match[1]);
+  if (!Number.isFinite(value)) return 0;
+
+  const multipliers = { k: 1_000, m: 1_000_000, b: 1_000_000_000 };
+  return Math.round(value * (multipliers[match[2]] ?? 1));
 }
 
 function extractShorts(initialData) {
@@ -57,7 +72,20 @@ function extractShorts(initialData) {
     for (let index = values.length - 1; index >= 0; index -= 1) stack.push(values[index]);
   }
 
-  return results.slice(0, 8);
+  return results
+    .slice(0, RECENT_POOL_SIZE)
+    .map((short, recencyIndex) => ({
+      ...short,
+      viewCount: parseViewCount(short.viewText),
+      recencyIndex,
+    }))
+    .sort((a, b) => b.viewCount - a.viewCount || a.recencyIndex - b.recencyIndex)
+    .slice(0, SHORTS_LIMIT)
+    .map((short) => {
+      const selectedShort = { ...short };
+      delete selectedShort.recencyIndex;
+      return selectedShort;
+    });
 }
 
 const existingShorts = await readExistingShorts();

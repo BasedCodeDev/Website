@@ -14,7 +14,7 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
   assert.match(html, /Recent broadcasts/);
   assert.match(html, /View all/);
-  assert.match(html, /Latest Shorts/);
+  assert.match(html, /Recent hits/);
   assert.match(html, /All Shorts/);
   assert.match(html, /Not Monsters/);
   assert.match(html, /Based Stream Tools/);
@@ -48,7 +48,7 @@ test("exports small Twitch thumbnails for recent VODs", async () => {
   }
 });
 
-test("exports recent BasedCode YouTube Shorts", async () => {
+test("exports successful recent BasedCode YouTube Shorts", async () => {
   const shorts = JSON.parse(await readFile(new URL("../dist/client/youtube-shorts.json", import.meta.url), "utf8"));
 
   assert.ok(Array.isArray(shorts) && shorts.length > 2);
@@ -56,5 +56,10 @@ test("exports recent BasedCode YouTube Shorts", async () => {
     assert.match(short.id, /^[A-Za-z0-9_-]{11}$/);
     assert.equal(short.url, `https://www.youtube.com/shorts/${short.id}`);
     assert.equal(short.thumbnailUrl, `https://i.ytimg.com/vi/${short.id}/frame0.jpg`);
+    assert.ok(Number.isInteger(short.viewCount) && short.viewCount >= 0);
+  }
+
+  for (let index = 1; index < shorts.length; index += 1) {
+    assert.ok(shorts[index - 1].viewCount >= shorts[index].viewCount);
   }
 });

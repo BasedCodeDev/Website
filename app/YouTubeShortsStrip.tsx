@@ -12,6 +12,7 @@ type YouTubeShort = {
   title: string;
   url: string;
   thumbnailUrl: string;
+  viewCount: number;
   viewText?: string;
 };
 
@@ -35,8 +36,8 @@ export function YouTubeShortsStrip() {
         <div className="shorts-heading">
           <SiYoutube aria-hidden="true" />
           <span className="shorts-heading-copy">
-            <h2 id="shorts-title">Latest Shorts</h2>
-            <small>Quick builds, findings, and useful moments.</small>
+            <h2 id="shorts-title">Recent hits</h2>
+            <small>The strongest recent Shorts, ranked by views.</small>
           </span>
         </div>
         <div className="shorts-actions">
@@ -46,7 +47,7 @@ export function YouTubeShortsStrip() {
         </div>
       </div>
 
-      <div className="shorts-rail" ref={rail} aria-label="Recent BasedCode YouTube Shorts">
+      <div className="shorts-rail" ref={rail} aria-label="Popular recent BasedCode YouTube Shorts">
         {shorts.map((short, index) => (
           <a className="short-card" href={short.url} target="_blank" rel="noreferrer" key={short.id}>
             <span className="short-card-media">
