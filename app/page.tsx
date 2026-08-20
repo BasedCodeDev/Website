@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
 import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
+import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
 
 declare global {
   interface Window {
@@ -131,6 +132,8 @@ export default function Home() {
 
           <TwitchHeroPlayer />
         </section>
+
+        <YouTubeShortsStrip />
 
         <section className="social-section" id="socials" aria-labelledby="social-title">
           <div className="section-heading">

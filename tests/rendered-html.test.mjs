@@ -14,6 +14,8 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
   assert.match(html, /Recent broadcasts/);
   assert.match(html, /View all/);
+  assert.match(html, /Latest Shorts/);
+  assert.match(html, /All Shorts/);
   assert.match(html, /Not Monsters/);
   assert.match(html, /Based Stream Tools/);
   assert.match(html, /On Point/);
@@ -26,6 +28,7 @@ test("keeps required static assets in the Pages artifact", async () => {
     "dist/client/og.png",
     "dist/client/text-ripple.js",
     "dist/client/twitch-vods.json",
+    "dist/client/youtube-shorts.json",
     "dist/client/about/seb-live-build.jpg",
     "dist/client/projects/not-monsters.png",
     "dist/client/projects/based-stream-tools.jpg",
@@ -42,5 +45,16 @@ test("exports small Twitch thumbnails for recent VODs", async () => {
   for (const vod of vods) {
     assert.match(vod.url, /^https:\/\/www\.twitch\.tv\/videos\/\d+$/);
     if (vod.thumbnailUrl) assert.match(vod.thumbnailUrl, /^https:\/\/static-cdn\.jtvnw\.net\/.*-160x90\.jpg$/);
+  }
+});
+
+test("exports recent BasedCode YouTube Shorts", async () => {
+  const shorts = JSON.parse(await readFile(new URL("../dist/client/youtube-shorts.json", import.meta.url), "utf8"));
+
+  assert.ok(Array.isArray(shorts) && shorts.length > 2);
+  for (const short of shorts) {
+    assert.match(short.id, /^[A-Za-z0-9_-]{11}$/);
+    assert.equal(short.url, `https://www.youtube.com/shorts/${short.id}`);
+    assert.equal(short.thumbnailUrl, `https://i.ytimg.com/vi/${short.id}/frame0.jpg`);
   }
 });
