@@ -60,6 +60,7 @@ export default function Home() {
   const [light, setLight] = useState(false);
   const [motionEnabled, setMotionEnabled] = useState(true);
   const heroTitle = useRef<HTMLHeadingElement>(null);
+  const setupMotionRef = useRef<((enabled: boolean) => void) | null>(null);
 
   useEffect(() => {
     const themeFrame = window.requestAnimationFrame(() => {
@@ -70,9 +71,17 @@ export default function Home() {
     const motionFrame = window.requestAnimationFrame(() => setMotionEnabled(initialMotion));
 
     let sectionObserver: IntersectionObserver | null = null;
+    let revealObserver: IntersectionObserver | null = null;
 
     const setupRipple = (allowMotion: boolean) => {
-      if (!allowMotion) return;
+      const site = document.querySelector<HTMLElement>(".site");
+      if (!allowMotion) {
+        site?.classList.remove("motion-enabled");
+        revealObserver?.disconnect();
+        return;
+      }
+
+      site?.classList.add("motion-enabled");
       const ripple = window.TextRipple ?? localRipple;
       if (heroTitle.current) {
         ripple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
@@ -92,14 +101,34 @@ export default function Home() {
       }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
 
       sectionTitles.forEach((title) => sectionObserver?.observe(title));
+
+      const revealSections = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal-section]"));
+      revealSections.forEach((section) => {
+        section.classList.add("motion-pending");
+        section.querySelectorAll<HTMLElement>("[data-reveal-item]").forEach((item, index) => {
+          item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
+        });
+      });
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.remove("motion-pending");
+          entry.target.classList.add("motion-visible");
+          revealObserver?.unobserve(entry.target);
+        });
+      }, { rootMargin: "0px 0px -10% 0px", threshold: 0.08 });
+      revealSections.forEach((section) => revealObserver?.observe(section));
     };
 
+    setupMotionRef.current = setupRipple;
     setupRipple(initialMotion);
 
     return () => {
       window.cancelAnimationFrame(themeFrame);
       window.cancelAnimationFrame(motionFrame);
       sectionObserver?.disconnect();
+      revealObserver?.disconnect();
+      setupMotionRef.current = null;
       window.TextRipple?.cancelAnimations?.();
       localRipple.cancelAnimations();
     };
@@ -120,7 +149,9 @@ export default function Home() {
       if (!next) {
         window.TextRipple?.cancelAnimations?.();
         localRipple.cancelAnimations();
+        setupMotionRef.current?.(false);
       } else if (heroTitle.current) {
+        setupMotionRef.current?.(true);
         (window.TextRipple ?? localRipple).scrambleReveal(heroTitle.current, { duration: 900, preserveText: true });
       }
       return next;
@@ -170,15 +201,15 @@ export default function Home() {
 
         <YouTubeShortsStrip />
 
-        <section className="social-section" id="socials" aria-labelledby="social-title">
-          <div className="section-heading">
+        <section className="social-section" id="socials" aria-labelledby="social-title" data-reveal-section>
+          <div className="section-heading" data-reveal-item>
             <p className="eyebrow">01 / Find the signal</p>
             <h2 id="social-title" data-ripple data-duration="900">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
             <p>Twitch is where the work happens live. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
           </div>
           <div className="social-grid">
             {socials.map(({ name, benefit, href, icon: Icon, primary }) => (
-              <a className={`social-card ${primary ? "social-primary" : ""}`} href={href} target="_blank" rel="noreferrer" key={name}>
+              <a className={`social-card ${primary ? "social-primary" : ""}`} href={href} target="_blank" rel="noreferrer" key={name} data-reveal-item>
                 <span className="social-icon"><Icon aria-hidden="true" /></span>
                 <span className="social-copy"><strong>{name}</strong><small>{benefit}</small></span>
                 <FiArrowUpRight className="arrow" aria-hidden="true" />
@@ -187,14 +218,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="projects-section" id="projects" aria-labelledby="projects-title">
-          <div className="section-heading horizontal">
+        <section className="projects-section" id="projects" aria-labelledby="projects-title" data-reveal-section>
+          <div className="section-heading horizontal" data-reveal-item>
             <div><p className="eyebrow">02 / Current projects</p><h2 id="projects-title" data-ripple data-duration="900">Things we’re<br />making real.</h2></div>
             <p>Real games and tools where experiments, trade-offs, and useful lessons have somewhere concrete to land.</p>
           </div>
           <div className="project-list">
             {projects.map((project) => (
-              <a className="project-card" href={project.href} target="_blank" rel="noreferrer" key={project.name}>
+              <a className="project-card" href={project.href} target="_blank" rel="noreferrer" key={project.name} data-reveal-item>
                 <span className="project-image">
                   <img src={project.image} alt={project.imageAlt} loading="lazy" />
                   <span className="project-index">{project.index}</span>
@@ -206,8 +237,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section" id="about" aria-labelledby="about-title">
-          <div className="about-visual">
+        <section className="about-section" id="about" aria-labelledby="about-title" data-reveal-section>
+          <div className="about-visual" data-reveal-item>
             <div className="about-photo">
               <img src="/about/seb-live-build.jpg" alt="Seb working with fellow developers during a live PC build event." loading="lazy" />
               <span className="about-photo-tag">REAL WORK / LIVE BUILD</span>
@@ -217,7 +248,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="about-copy">
+          <div className="about-copy" data-reveal-item>
             <p className="eyebrow">03 / Building in public</p>
             <h2 id="about-title" data-ripple data-duration="900">Come build<br />alongside us.</h2>
             <p className="about-lede">BasedCode is where Seb builds games and software in public. See how decisions get made, ask questions, contribute where useful, and take practical lessons back to your own projects.</p>
