@@ -64,26 +64,51 @@ export default function Home() {
       setLight(window.localStorage.getItem("basedcode-theme") === "light");
     });
 
-    const revealTitle = () => {
+    let sectionObserver: IntersectionObserver | null = null;
+
+    const setupRipple = () => {
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && heroTitle.current && window.TextRipple) {
         window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
       }
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !window.TextRipple) return;
+
+      const sectionTitles = Array.from(document.querySelectorAll<HTMLElement>(".section-heading h2[data-ripple], .about-copy h2[data-ripple]"));
+      sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || !window.TextRipple) return;
+          const title = entry.target as HTMLElement;
+          window.TextRipple.scrambleReveal(title, {
+            duration: Number(title.dataset.duration || 900),
+            preserveText: true,
+          });
+          sectionObserver?.unobserve(title);
+        });
+      }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
+
+      sectionTitles.forEach((title) => sectionObserver?.observe(title));
     };
 
     if (window.TextRipple) {
-      revealTitle();
-      return () => window.cancelAnimationFrame(themeFrame);
+      setupRipple();
+      return () => {
+        window.cancelAnimationFrame(themeFrame);
+        sectionObserver?.disconnect();
+        window.TextRipple?.cancelAnimations?.();
+      };
     }
 
     const rippleScript = document.createElement("script");
     rippleScript.src = "/text-ripple.js";
     rippleScript.async = true;
-    rippleScript.addEventListener("load", revealTitle, { once: true });
+    rippleScript.addEventListener("load", setupRipple, { once: true });
     document.head.appendChild(rippleScript);
 
     return () => {
       window.cancelAnimationFrame(themeFrame);
-      rippleScript.removeEventListener("load", revealTitle);
+      rippleScript.removeEventListener("load", setupRipple);
+      sectionObserver?.disconnect();
+      window.TextRipple?.cancelAnimations?.();
     };
   }, []);
 
@@ -112,7 +137,7 @@ export default function Home() {
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-copy">
             <p className="eyebrow"><span className="status-dot" /> Building in public</p>
-            <h1 id="hero-title" ref={heroTitle}><span className="hero-kicker">Together, we</span><span className="hero-word">build.</span><br /><span className="hero-word">play.</span><br /><span className="hero-word">learn.</span></h1>
+            <h1 id="hero-title" ref={heroTitle} data-ripple data-duration="1350"><span className="hero-kicker">Together, we</span><span className="hero-word">build.</span><br /><span className="hero-word">play.</span><br /><span className="hero-word">learn.</span></h1>
             <p className="hero-intro">Step inside real game and software development. Watch the decisions, ask questions, and bring useful lessons back to your own work.</p>
             <div className="hero-actions">
               <a className="button button-primary" href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer"><SiTwitch aria-hidden="true" /> Watch a build <FiArrowUpRight aria-hidden="true" /></a>
@@ -138,7 +163,7 @@ export default function Home() {
         <section className="social-section" id="socials" aria-labelledby="social-title">
           <div className="section-heading">
             <p className="eyebrow">01 / Find the signal</p>
-            <h2 id="social-title">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
+            <h2 id="social-title" data-ripple data-duration="900">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
             <p>Twitch is where the work happens live. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
           </div>
           <div className="social-grid">
@@ -154,7 +179,7 @@ export default function Home() {
 
         <section className="projects-section" id="projects" aria-labelledby="projects-title">
           <div className="section-heading horizontal">
-            <div><p className="eyebrow">02 / Current projects</p><h2 id="projects-title">Things we’re<br />making real.</h2></div>
+            <div><p className="eyebrow">02 / Current projects</p><h2 id="projects-title" data-ripple data-duration="900">Things we’re<br />making real.</h2></div>
             <p>Real games and tools where experiments, trade-offs, and useful lessons have somewhere concrete to land.</p>
           </div>
           <div className="project-list">
@@ -184,7 +209,7 @@ export default function Home() {
           </div>
           <div className="about-copy">
             <p className="eyebrow">03 / Building in public</p>
-            <h2 id="about-title">Come build<br />alongside us.</h2>
+            <h2 id="about-title" data-ripple data-duration="900">Come build<br />alongside us.</h2>
             <p className="about-lede">BasedCode is where Seb builds games and software in public. See how decisions get made, ask questions, contribute where useful, and take practical lessons back to your own projects.</p>
             <p className="about-host">Seb Fehr <span>/</span> Developer · game maker · streamer</p>
             <div className="participation-cues" aria-label="Ways to participate">

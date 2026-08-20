@@ -10,6 +10,10 @@ test("exports the BasedCode homepage for static hosting", async () => {
 
   assert.match(html, /<title>BasedCode — Together, we build\.<\/title>/i);
   assert.match(html, /Together, we/);
+  assert.match(html, /id="hero-title"[^>]*data-ripple/);
+  assert.match(html, /id="social-title"[^>]*data-ripple/);
+  assert.match(html, /id="projects-title"[^>]*data-ripple/);
+  assert.match(html, /id="about-title"[^>]*data-ripple/);
   assert.match(html, /class="hero-word">build\.<\/span>/);
   assert.match(html, /class="hero-word">play\.<\/span>/);
   assert.match(html, /class="hero-word">learn\.<\/span>/);
