@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
 import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
@@ -61,6 +60,25 @@ export default function Home() {
 
   useEffect(() => {
     setLight(window.localStorage.getItem("basedcode-theme") === "light");
+
+    const revealTitle = () => {
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && heroTitle.current && window.TextRipple) {
+        window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
+      }
+    };
+
+    if (window.TextRipple) {
+      revealTitle();
+      return;
+    }
+
+    const rippleScript = document.createElement("script");
+    rippleScript.src = "/text-ripple.js";
+    rippleScript.async = true;
+    rippleScript.addEventListener("load", revealTitle, { once: true });
+    document.head.appendChild(rippleScript);
+
+    return () => rippleScript.removeEventListener("load", revealTitle);
   }, []);
 
   const toggleTheme = () => {
@@ -71,16 +89,8 @@ export default function Home() {
     });
   };
 
-  const runHeroRipple = () => {
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && heroTitle.current && window.TextRipple) {
-      window.TextRipple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
-    }
-  };
-
   return (
     <div className={`site ${light ? "light" : "dark"}`}>
-      <Script src="/text-ripple.js" strategy="afterInteractive" onLoad={runHeroRipple} />
-
       <header className="topbar">
         <a className="brand" href="#top" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Primary navigation"><a href="#socials">Start here</a><a href="#projects">Projects</a><a href="#about">About</a></nav>
