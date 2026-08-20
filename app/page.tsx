@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
 import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
@@ -62,7 +62,7 @@ export default function Home() {
   const heroTitle = useRef<HTMLHeadingElement>(null);
   const setupMotionRef = useRef<((enabled: boolean) => void) | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const themeFrame = window.requestAnimationFrame(() => {
       setLight(window.localStorage.getItem("basedcode-theme") === "light");
     });
@@ -72,17 +72,24 @@ export default function Home() {
 
     let sectionObserver: IntersectionObserver | null = null;
     let revealObserver: IntersectionObserver | null = null;
+    let revealFrame = 0;
 
     const setupRipple = (allowMotion: boolean) => {
       const site = document.querySelector<HTMLElement>(".site");
       if (!allowMotion) {
         site?.classList.remove("motion-enabled");
         site?.classList.remove("motion-forced");
+        site?.classList.remove("motion-preparing");
+        document.querySelectorAll<HTMLElement>("[data-reveal-item]").forEach((item) => {
+          item.classList.remove("motion-pending");
+          item.classList.add("motion-visible");
+        });
         revealObserver?.disconnect();
         return;
       }
 
-      site?.classList.add("motion-enabled");
+      site?.classList.add("motion-preparing");
+      site?.classList.remove("motion-enabled");
       site?.classList.toggle("motion-forced", window.localStorage.getItem("basedcode-motion") !== "off");
       const ripple = window.TextRipple ?? localRipple;
       if (heroTitle.current) {
@@ -105,12 +112,18 @@ export default function Home() {
       sectionTitles.forEach((title) => sectionObserver?.observe(title));
 
       const revealSections = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal-section]"));
+      const revealItems: HTMLElement[] = [];
       revealSections.forEach((section) => {
-        section.classList.add("motion-pending");
         section.querySelectorAll<HTMLElement>("[data-reveal-item]").forEach((item, index) => {
+          item.classList.remove("motion-visible");
+          item.classList.add("motion-pending");
           item.style.setProperty("--reveal-delay", `${Math.min(index * 70, 280)}ms`);
+          revealItems.push(item);
         });
       });
+      site?.classList.add("motion-enabled");
+      if (site) void site.offsetWidth;
+      revealFrame = window.requestAnimationFrame(() => site?.classList.remove("motion-preparing"));
       revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
@@ -119,7 +132,7 @@ export default function Home() {
           revealObserver?.unobserve(entry.target);
         });
       }, { rootMargin: "0px 0px -10% 0px", threshold: 0.08 });
-      revealSections.forEach((section) => revealObserver?.observe(section));
+      revealItems.forEach((item) => revealObserver?.observe(item));
     };
 
     setupMotionRef.current = setupRipple;
@@ -128,6 +141,7 @@ export default function Home() {
     return () => {
       window.cancelAnimationFrame(themeFrame);
       window.cancelAnimationFrame(motionFrame);
+      window.cancelAnimationFrame(revealFrame);
       sectionObserver?.disconnect();
       revealObserver?.disconnect();
       setupMotionRef.current = null;
