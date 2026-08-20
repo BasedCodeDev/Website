@@ -299,15 +299,13 @@ export function TwitchHeroPlayer() {
         {!showPoster && status === "loading" && <div className="stream-loading" aria-live="polite"><span aria-hidden="true" />Connecting to Twitch…</div>}
       </div>
 
-      <div className="stream-footer">
-        <strong>{displayTitle}</strong>
-        <a href={destination} target="_blank" rel="noreferrer">{destinationLabel}<FiArrowUpRight aria-hidden="true" /></a>
-      </div>
-
       <div className="vod-browser">
         <div className="vod-browser-header">
           <span>Recent broadcasts</span>
-          <a href={VIDEOS_URL} target="_blank" rel="noreferrer">View all<FiArrowUpRight aria-hidden="true" /></a>
+          <div className="vod-browser-links">
+            <a href={destination} target="_blank" rel="noreferrer">{destinationLabel}<FiArrowUpRight aria-hidden="true" /></a>
+            <a href={VIDEOS_URL} target="_blank" rel="noreferrer">View all<FiArrowUpRight aria-hidden="true" /></a>
+          </div>
         </div>
         {recentVods.length ? (
           <div className="vod-buttons">
