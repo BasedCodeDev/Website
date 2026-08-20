@@ -59,7 +59,9 @@ export default function Home() {
   const heroTitle = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    setLight(window.localStorage.getItem("basedcode-theme") === "light");
+    const themeFrame = window.requestAnimationFrame(() => {
+      setLight(window.localStorage.getItem("basedcode-theme") === "light");
+    });
 
     const revealTitle = () => {
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && heroTitle.current && window.TextRipple) {
@@ -69,7 +71,7 @@ export default function Home() {
 
     if (window.TextRipple) {
       revealTitle();
-      return;
+      return () => window.cancelAnimationFrame(themeFrame);
     }
 
     const rippleScript = document.createElement("script");
@@ -78,7 +80,10 @@ export default function Home() {
     rippleScript.addEventListener("load", revealTitle, { once: true });
     document.head.appendChild(rippleScript);
 
-    return () => rippleScript.removeEventListener("load", revealTitle);
+    return () => {
+      window.cancelAnimationFrame(themeFrame);
+      rippleScript.removeEventListener("load", revealTitle);
+    };
   }, []);
 
   const toggleTheme = () => {

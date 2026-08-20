@@ -12,6 +12,8 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /Together, we/);
   assert.match(html, /Step inside real game and software development\./);
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
+  assert.match(html, /Recent broadcasts/);
+  assert.match(html, /View all/);
   assert.match(html, /Not Monsters/);
   assert.match(html, /Based Stream Tools/);
   assert.match(html, /On Point/);
