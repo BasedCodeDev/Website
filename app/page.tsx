@@ -115,8 +115,8 @@ export default function Home() {
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-copy">
             <p className="eyebrow"><span className="status-dot" /> Building in public</p>
-            <h1 id="hero-title" ref={heroTitle}>Build it.<br /><span>Play it.</span><br />Learn it.</h1>
-            <p className="hero-intro">Games, software, AI experiments, and the honest decisions behind shipping real things.</p>
+            <h1 id="hero-title" ref={heroTitle}><span className="hero-kicker">Together, we</span>build.<br /><span>play.</span><br />learn.</h1>
+            <p className="hero-intro">Step inside real game and software development. Watch the decisions, ask questions, and bring useful lessons back to your own work.</p>
             <div className="hero-actions">
               <a className="button button-primary" href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer"><SiTwitch aria-hidden="true" /> Watch a build <FiArrowUpRight aria-hidden="true" /></a>
               <a className="button button-secondary" href="#socials">Find BasedCode <FiArrowDown aria-hidden="true" /></a>

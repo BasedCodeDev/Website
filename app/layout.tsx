@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedcode.dev"),
-  title: "BasedCode — Build it. Play it. Learn it.",
-  description: "Games, software, and AI experiments built in public—see the decisions, learn from the mess, and build alongside us.",
+  title: "BasedCode — Together, we build.",
+  description: "Step inside real game and software development. Watch the decisions, ask questions, and bring useful lessons back to your own work.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: {
-    title: "BasedCode — Build it. Play it. Learn it.",
+    title: "BasedCode — Together, we build.",
     description: "Watch real games and software take shape, join the conversation, and build with better context.",
     url: "https://basedcode.dev",
     siteName: "BasedCode",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "BasedCode — Build it. Play it. Learn it.",
+    title: "BasedCode — Together, we build.",
     description: "Watch real games and software take shape, join the conversation, and build with better context.",
     images: ["/og.png"],
   },
