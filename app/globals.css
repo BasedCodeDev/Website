@@ -53,6 +53,7 @@ button { font: inherit; }
 .hero h1 { margin: 0; font-size: clamp(3.7rem, 6.4vw, 7.2rem); line-height: .84; letter-spacing: -.105em; font-weight: 700; }
 .hero h1 span { color: #ead8ee; }
 .hero h1 .hero-kicker { display: block; margin-bottom: .28em; color: #fff; font-size: .38em; line-height: 1; letter-spacing: -.06em; }
+.hero h1 .hero-word { display: inline-block; margin-left: clamp(.28em, 1.8vw, .62em); }
 .hero-intro { max-width: 650px; margin: 34px 0 0; color: #fff; font-size: clamp(.98rem, 1.35vw, 1.18rem); line-height: 1.65; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
 .button { min-height: 52px; display: inline-flex; align-items: center; gap: 10px; padding: 0 18px; border-radius: 8px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s ease; }
