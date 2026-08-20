@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
-import { FiArrowDown, FiArrowUpRight, FiCode, FiMoon, FiPlay, FiRadio, FiSun } from "react-icons/fi";
+import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 
 declare global {
@@ -154,24 +154,27 @@ export default function Home() {
         </section>
 
         <section className="about-section" id="about" aria-labelledby="about-title">
-          <div className="about-visual" aria-hidden="true">
-            <div className="about-mark">
-              <span className="about-mark-corner">BC / 03</span>
-              <div className="about-monogram"><span>&lt;/</span><strong>BC</strong></div>
-              <div className="about-mark-meta"><span>creator / community</span><span>build · play · learn</span></div>
+          <div className="about-visual">
+            <div className="about-photo">
+              <img src="/about/seb-workshop.png" alt="Seb working during a BasedCode build." loading="lazy" />
+              <span className="about-photo-tag">REAL WORK / OPEN WORKSHOP</span>
+              <div className="about-photo-meta" aria-hidden="true">
+                <span>SEB FEHR / BASEDCODE</span>
+                <span>BUILDING IN PUBLIC</span>
+              </div>
             </div>
-            <div className="about-signal"><span><i /> Signal active</span><span>Always shipping</span></div>
           </div>
           <div className="about-copy">
-            <p className="eyebrow">03 / BasedCode</p>
-            <h2 id="about-title">Real work.<br />Useful lessons.<br />No guru theatre.</h2>
-            <p className="about-lede">Building is messy, uncertain, and easier when you can see the decisions—not just the polished result. Seb builds real games and software in public, sharing the constraints, mistakes, and trade-offs so others can learn alongside the work—not be sold a shortcut.</p>
-            <p className="about-meta">Hosted by Seb <span>/</span> Creator-led <span>/</span> Community-minded</p>
-            <div className="principles">
-              <span><FiCode aria-hidden="true" /><strong>Build</strong><small>Make real things</small></span>
-              <span><FiPlay aria-hidden="true" /><strong>Play</strong><small>Test ideas in practice</small></span>
-              <span><FiRadio aria-hidden="true" /><strong>Learn together</strong><small>Share the reasoning</small></span>
+            <p className="eyebrow">03 / The open workshop</p>
+            <h2 id="about-title">Come build<br />alongside us.</h2>
+            <p className="about-lede">BasedCode is where Seb builds games and software in public. See how decisions get made, ask questions, contribute where useful, and take practical lessons back to your own projects.</p>
+            <p className="about-host">Seb Fehr <span>/</span> Developer · game maker · streamer</p>
+            <div className="participation-cues" aria-label="Ways to participate">
+              <span><small>01</small>Watch the process</span>
+              <span><small>02</small>Ask better questions</span>
+              <span><small>03</small>Make something real</span>
             </div>
+            <a className="button about-cta" href="https://discord.gg/rxJufPTM2" target="_blank" rel="noreferrer"><SiDiscord aria-hidden="true" /> Join the Discord <FiArrowUpRight aria-hidden="true" /></a>
           </div>
         </section>
       </main>
