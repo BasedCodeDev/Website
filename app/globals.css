@@ -252,6 +252,40 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .footer-meta { justify-content: flex-start; }
   footer > a:last-child { justify-self: start; }
 }
+@media (max-width: 420px) {
+  .topbar { height: 62px; padding-right: max(12px, env(safe-area-inset-right)); padding-left: max(12px, env(safe-area-inset-left)); }
+  .brand { font-size: 1rem; }
+  .topbar-controls { gap: 6px; }
+  .theme-toggle { width: 36px; height: 36px; justify-content: center; padding: 0; }
+  .hero { gap: 34px; padding: 92px max(12px, env(safe-area-inset-right)) 44px max(12px, env(safe-area-inset-left)); }
+  .hero-copy, .stream-card { min-width: 0; }
+  .hero .eyebrow { margin-bottom: 16px; font-size: .56rem; letter-spacing: .12em; }
+  .hero h1 { font-size: clamp(3rem, 18vw, 3.9rem); line-height: .88; letter-spacing: -.095em; }
+  .hero h1 .hero-kicker { margin-bottom: .36em; font-size: .36em; letter-spacing: -.04em; }
+  .hero h1 .hero-word { margin-left: .12em; }
+  .hero-intro { margin-top: 24px; font-size: .86rem; line-height: 1.55; }
+  .hero-actions { gap: 8px; margin-top: 24px; }
+  .button { min-height: 46px; padding: 0 13px; font-size: .62rem; }
+  .hero-socials { display: grid; gap: 9px; margin-top: 18px; }
+  .hero-socials > div { gap: 6px; }
+  .hero-socials a { width: 32px; height: 32px; }
+  .stream-card { padding: 10px; border-radius: 14px; box-shadow: 0 24px 68px rgba(18,16,20,.38); }
+  .stream-topline { gap: 8px; font-size: .5rem; }
+  .stream-window { margin: 10px 0 6px; border-radius: 8px; }
+  .stream-poster { width: min(calc(100% - 16px), 420px); gap: 8px; padding: 12px; }
+  .stream-poster > svg { font-size: 1.5rem; }
+  .stream-poster strong { font-size: .72rem; }
+  .stream-poster p { font-size: .57rem; line-height: 1.4; }
+  .poster-actions { width: 100%; display: grid; gap: 6px; margin-top: 2px; }
+  .poster-actions a { justify-content: center; padding: 8px; font-size: .56rem; }
+  .vod-browser { padding-top: 6px; }
+  .vod-browser-header { align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: .46rem; letter-spacing: .08em; }
+  .vod-browser-links { gap: 8px; }
+  .vod-browser-links a:first-child { display: none; }
+  .vod-choice { flex-basis: 176px; grid-template-columns: 68px minmax(0, 1fr); gap: 6px; padding: 5px; }
+  .vod-thumbnail { width: 68px; }
+  .vod-choice-copy strong { font-size: .5rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .site:not(.motion-forced) *, .site:not(.motion-forced) *::before, .site:not(.motion-forced) *::after { transition-duration: .01ms !important; }

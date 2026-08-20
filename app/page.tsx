@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
-import { FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
+import { FiActivity, FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
 import * as localRipple from "./textRipple";
@@ -186,7 +186,7 @@ export default function Home() {
         <nav aria-label="Primary navigation"><a href="#socials">Start here</a><a href="#projects">Projects</a><a href="#about">About</a></nav>
         <div className="topbar-controls">
           <button className="theme-toggle" type="button" onClick={toggleMotion} aria-label={`${motionEnabled ? "Pause" : "Enable"} motion`}>
-            <span>{motionEnabled ? "Motion" : "Motion off"}</span>
+            <FiActivity aria-hidden="true" /><span>{motionEnabled ? "Motion" : "Motion off"}</span>
           </button>
           <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${light ? "dark" : "light"} theme`}>
             {light ? <FiMoon aria-hidden="true" /> : <FiSun aria-hidden="true" />}<span>{light ? "Dark" : "Light"}</span>
