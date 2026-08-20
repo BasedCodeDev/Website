@@ -42,7 +42,7 @@ const projects = [
     description: "Interactive stream tools, overlays, goal tracking, and playful systems built to bring audiences into the action.",
     href: "https://basedstreamtools.com/",
     image: "/projects/based-stream-tools.jpg",
-    imageAlt: "BasedCode stream showing a custom integration and live stream overlays",
+    imageAlt: "Based Stream Tools website preview with a Level Up Your Stream message",
   },
   {
     index: "03",
@@ -51,7 +51,7 @@ const projects = [
     description: "An arcade-inspired VR first-person shooter packed with rapid-fire, WarioWare-style shooting minigames.",
     href: "https://onpoint.games/",
     image: "/projects/on-point-environment.jpg",
-    imageAlt: "A moonlit castle environment from On Point",
+    imageAlt: "On Point logo surrounded by colourful arcade cabinets and light guns",
   },
 ];
 
