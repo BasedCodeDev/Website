@@ -18,7 +18,7 @@ declare global {
 const socials = [
   { name: "Twitch", handle: "@basedcode", benefit: "Participate in the work live", href: "https://www.twitch.tv/basedcode", icon: SiTwitch, primary: true },
   { name: "YouTube", handle: "@BasedCode", benefit: "Watch durable project breakdowns", href: "https://www.youtube.com/@BasedCode", icon: SiYoutube },
-  { name: "Discord", handle: "The workshop", benefit: "Ask, contribute, and keep building", href: "https://discord.gg/rxJufPTM2", icon: SiDiscord },
+  { name: "Discord", handle: "Community", benefit: "Ask, contribute, and keep building", href: "https://discord.gg/rxJufPTM2", icon: SiDiscord },
   { name: "TikTok", handle: "@basedcodedev", benefit: "Catch useful moments and findings", href: "https://www.tiktok.com/@basedcodedev", icon: SiTiktok },
   { name: "Instagram", handle: "@basedcodedev", benefit: "Follow milestones behind the scenes", href: "https://www.instagram.com/basedcodedev/", icon: SiInstagram },
   { name: "X", handle: "@BasedCodeDev", benefit: "Get fast project and stream updates", href: "https://x.com/BasedCodeDev", icon: SiX },
@@ -121,7 +121,7 @@ export default function Home() {
           <div className="section-heading">
             <p className="eyebrow">01 / Find the signal</p>
             <h2 id="social-title">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
-            <p>Twitch is the open workshop. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
+            <p>Twitch is where the work happens live. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
           </div>
           <div className="social-grid">
             {socials.map(({ name, benefit, href, icon: Icon, primary }) => (
@@ -156,8 +156,8 @@ export default function Home() {
         <section className="about-section" id="about" aria-labelledby="about-title">
           <div className="about-visual">
             <div className="about-photo">
-              <img src="/about/seb-workshop.jpg" alt="Seb working with fellow developers during a live PC build event." loading="lazy" />
-              <span className="about-photo-tag">REAL WORK / OPEN WORKSHOP</span>
+              <img src="/about/seb-live-build.jpg" alt="Seb working with fellow developers during a live PC build event." loading="lazy" />
+              <span className="about-photo-tag">REAL WORK / LIVE BUILD</span>
               <div className="about-photo-meta" aria-hidden="true">
                 <span>SEB FEHR / BASEDCODE</span>
                 <span>BUILDING IN PUBLIC</span>
@@ -165,7 +165,7 @@ export default function Home() {
             </div>
           </div>
           <div className="about-copy">
-            <p className="eyebrow">03 / The open workshop</p>
+            <p className="eyebrow">03 / Building in public</p>
             <h2 id="about-title">Come build<br />alongside us.</h2>
             <p className="about-lede">BasedCode is where Seb builds games and software in public. See how decisions get made, ask questions, contribute where useful, and take practical lessons back to your own projects.</p>
             <p className="about-host">Seb Fehr <span>/</span> Developer · game maker · streamer</p>
