@@ -17,9 +17,10 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /data-reveal-axis="x"/);
   assert.match(html, /Together, we/);
   assert.match(html, /id="hero-title"[^>]*data-ripple/);
-  assert.match(html, /id="social-title"[^>]*data-ripple/);
-  assert.match(html, /id="projects-title"[^>]*data-ripple/);
-  assert.match(html, /id="about-title"[^>]*data-ripple/);
+  assert.match(html, /<p class="eyebrow"[^>]*data-section-ripple[^>]*>01 \/ Find the signal/);
+  assert.match(html, /<p class="eyebrow"[^>]*data-section-ripple[^>]*>02 \/ Current projects/);
+  assert.match(html, /<p class="eyebrow"[^>]*data-section-ripple[^>]*>03 \/ Building in public/);
+  assert.doesNotMatch(html, /id="(?:social|projects|about)-title"[^>]*data-ripple/);
   assert.match(html, /class="hero-word">build\.<\/span>/);
   assert.match(html, /class="hero-word">play\.<\/span>/);
   assert.match(html, /class="hero-word">learn\.<\/span>/);

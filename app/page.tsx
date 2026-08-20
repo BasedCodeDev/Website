@@ -96,20 +96,20 @@ export default function Home() {
         ripple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
       }
 
-      const sectionTitles = Array.from(document.querySelectorAll<HTMLElement>(".section-heading h2[data-ripple], .about-copy h2[data-ripple]"));
+      const sectionSignals = Array.from(document.querySelectorAll<HTMLElement>("[data-section-ripple]"));
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          const title = entry.target as HTMLElement;
-          ripple.scrambleReveal(title, {
-            duration: Number(title.dataset.duration || 900),
+          const signal = entry.target as HTMLElement;
+          ripple.scrambleReveal(signal, {
+            duration: Number(signal.dataset.duration || 750),
             preserveText: true,
           });
-          sectionObserver?.unobserve(title);
+          sectionObserver?.unobserve(signal);
         });
       }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
 
-      sectionTitles.forEach((title) => sectionObserver?.observe(title));
+      sectionSignals.forEach((signal) => sectionObserver?.observe(signal));
 
       const revealSections = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal-section]"));
       const revealItems: HTMLElement[] = [];
@@ -222,8 +222,8 @@ export default function Home() {
 
         <section className="social-section" id="socials" aria-labelledby="social-title" data-reveal-section>
           <div className="section-heading" data-reveal-item>
-            <p className="eyebrow">01 / Find the signal</p>
-            <h2 id="social-title" data-ripple data-duration="900">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
+            <p className="eyebrow" data-ripple data-section-ripple data-duration="750">01 / Find the signal</p>
+            <h2 id="social-title">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
             <p>Twitch is where the work happens live. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
           </div>
           <div className="social-grid">
@@ -239,7 +239,7 @@ export default function Home() {
 
         <section className="projects-section" id="projects" aria-labelledby="projects-title" data-reveal-section>
           <div className="section-heading horizontal" data-reveal-item>
-            <div><p className="eyebrow">02 / Current projects</p><h2 id="projects-title" data-ripple data-duration="900">Things we’re<br />making real.</h2></div>
+            <div><p className="eyebrow" data-ripple data-section-ripple data-duration="750">02 / Current projects</p><h2 id="projects-title">Things we’re<br />making real.</h2></div>
             <p>Real games and tools where experiments, trade-offs, and useful lessons have somewhere concrete to land.</p>
           </div>
           <div className="project-list">
@@ -268,8 +268,8 @@ export default function Home() {
             </div>
           </div>
           <div className="about-copy" data-reveal-item>
-            <p className="eyebrow">03 / Building in public</p>
-            <h2 id="about-title" data-ripple data-duration="900">Come build<br />alongside us.</h2>
+            <p className="eyebrow" data-ripple data-section-ripple data-duration="750">03 / Building in public</p>
+            <h2 id="about-title">Come build<br />alongside us.</h2>
             <p className="about-lede">BasedCode is where Seb builds games and software in public. See how decisions get made, ask questions, contribute where useful, and take practical lessons back to your own projects.</p>
             <p className="about-host">Seb Fehr <span>/</span> Developer · game maker · streamer</p>
             <div className="participation-cues" aria-label="Ways to participate">
