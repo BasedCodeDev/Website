@@ -29,7 +29,7 @@ const projects = [
   {
     index: "01",
     name: "Not Monsters",
-    type: "GAME / IN DEVELOPMENT",
+    type: "GAME / ACTUATOR GAMES",
     description: "A chaotic social-deduction party game where villagers brawl, accuse, and survive to expose the monsters hiding among them.",
     href: "https://notmonsters.actuator.games/",
     image: "/projects/not-monsters.png",
@@ -47,7 +47,7 @@ const projects = [
   {
     index: "03",
     name: "On Point",
-    type: "VR GAME",
+    type: "VR GAME / ACTUATOR DIGITAL",
     description: "An arcade-inspired VR first-person shooter packed with rapid-fire, WarioWare-style shooting minigames.",
     href: "https://onpoint.games/",
     image: "/projects/on-point-environment.jpg",
@@ -181,7 +181,7 @@ export default function Home() {
 
       <footer>
         <a className="brand" href="#top"><span>Based</span>Code<span className="slash">/</span></a>
-        <p>Building games, software, and creative technology in public—together.</p>
+        <p>Building games, software, and creative technology in public—together.<span className="footer-studio">Studio work at <a href="https://actuator.digital/" target="_blank" rel="noreferrer">Actuator Digital <FiArrowUpRight aria-hidden="true" /></a></span></p>
         <a href="https://www.twitch.tv/basedcode" target="_blank" rel="noreferrer">Watch a build <FiArrowUpRight aria-hidden="true" /></a>
       </footer>
     </div>
