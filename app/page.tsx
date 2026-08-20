@@ -114,10 +114,13 @@ export default function Home() {
       const revealSections = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal-section]"));
       const revealItems: HTMLElement[] = [];
       revealSections.forEach((section) => {
+        const stagger = Number(section.dataset.revealStagger ?? 45);
+        const maxDelay = Number(section.dataset.revealMaxDelay ?? 180);
+
         section.querySelectorAll<HTMLElement>("[data-reveal-item]").forEach((item, index) => {
           item.classList.remove("motion-visible");
           item.classList.add("motion-pending");
-          item.style.setProperty("--reveal-delay", `${Math.min(index * 45, 180)}ms`);
+          item.style.setProperty("--reveal-delay", `${Math.min(index * stagger, maxDelay)}ms`);
           revealItems.push(item);
         });
       });

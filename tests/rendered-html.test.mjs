@@ -14,6 +14,7 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /site dark motion-enabled motion-forced/);
   assert.match(html, /data-reveal-section/);
   assert.match(html, /data-reveal-item/);
+  assert.match(html, /data-reveal-axis="x"/);
   assert.match(html, /Together, we/);
   assert.match(html, /id="hero-title"[^>]*data-ripple/);
   assert.match(html, /id="social-title"[^>]*data-ripple/);

@@ -31,7 +31,13 @@ export function YouTubeShortsStrip() {
   if (!shorts.length) return null;
 
   return (
-    <section className="shorts-section" aria-labelledby="shorts-title">
+    <section
+      className="shorts-section"
+      aria-labelledby="shorts-title"
+      data-reveal-section
+      data-reveal-stagger="65"
+      data-reveal-max-delay="455"
+    >
       <div className="shorts-toolbar">
         <div className="shorts-heading">
           <SiYoutube aria-hidden="true" />
@@ -49,7 +55,15 @@ export function YouTubeShortsStrip() {
 
       <div className="shorts-rail" ref={rail} aria-label="Popular recent BasedCode YouTube Shorts">
         {shorts.map((short, index) => (
-          <a className="short-card" href={short.url} target="_blank" rel="noreferrer" key={short.id}>
+          <a
+            className="short-card"
+            href={short.url}
+            target="_blank"
+            rel="noreferrer"
+            key={short.id}
+            data-reveal-item
+            data-reveal-axis="x"
+          >
             <span className="short-card-media">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={short.thumbnailUrl} alt="" width="405" height="720" loading="lazy" decoding="async" />
