@@ -67,7 +67,7 @@ export default function Home() {
       setLight(window.localStorage.getItem("basedcode-theme") === "light");
     });
     const storedMotion = window.localStorage.getItem("basedcode-motion");
-    const initialMotion = storedMotion ? storedMotion === "on" : !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const initialMotion = storedMotion ? storedMotion === "on" : true;
     const motionFrame = window.requestAnimationFrame(() => setMotionEnabled(initialMotion));
 
     let sectionObserver: IntersectionObserver | null = null;
@@ -83,7 +83,7 @@ export default function Home() {
       }
 
       site?.classList.add("motion-enabled");
-      site?.classList.toggle("motion-forced", window.localStorage.getItem("basedcode-motion") === "on");
+      site?.classList.toggle("motion-forced", window.localStorage.getItem("basedcode-motion") !== "off");
       const ripple = window.TextRipple ?? localRipple;
       if (heroTitle.current) {
         ripple.scrambleReveal(heroTitle.current, { duration: 1350, delay: 120, preserveText: true });
