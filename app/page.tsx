@@ -42,7 +42,7 @@ const projects = [
     description: "Interactive stream tools, overlays, goal tracking, and playful systems built to bring audiences into the action.",
     href: "https://basedstreamtools.com/",
     image: "/projects/based-stream-tools.jpg",
-    imageAlt: "Based Stream Tools website preview with a Level Up Your Stream message",
+    imageAlt: "Based Stream Tools logo surrounded by glowing goal, leaderboard, chat, and live-activity panels",
   },
   {
     index: "03",
