@@ -29,6 +29,7 @@ type TwitchPlayerConstructor = {
   READY: string;
   ONLINE: string;
   OFFLINE: string;
+  PLAY: string;
   PLAYBACK_BLOCKED: string;
 };
 
@@ -59,6 +60,7 @@ export function TwitchHeroPlayer() {
   const [latestVod, setLatestVod] = useState<Vod | null>(null);
   const [resolverFailed, setResolverFailed] = useState(false);
   const [status, setStatus] = useState<PlayerStatus>("loading");
+  const [playbackStarted, setPlaybackStarted] = useState(false);
 
   const playerHost = useRef<HTMLDivElement>(null);
   const playerRef = useRef<TwitchPlayerInstance | null>(null);
@@ -134,17 +136,20 @@ export function TwitchHeroPlayer() {
       setStatus("live");
     };
     const onOffline = () => void showLatestVod(liveSeenRef.current);
+    const onPlay = () => setPlaybackStarted(true);
     const onPlaybackBlocked = () => player.setMuted(true);
 
     player.addEventListener(Player.READY, onReady);
     player.addEventListener(Player.ONLINE, onOnline);
     player.addEventListener(Player.OFFLINE, onOffline);
+    player.addEventListener(Player.PLAY, onPlay);
     player.addEventListener(Player.PLAYBACK_BLOCKED, onPlaybackBlocked);
 
     return () => {
       player.removeEventListener?.(Player.READY, onReady);
       player.removeEventListener?.(Player.ONLINE, onOnline);
       player.removeEventListener?.(Player.OFFLINE, onOffline);
+      player.removeEventListener?.(Player.PLAY, onPlay);
       player.removeEventListener?.(Player.PLAYBACK_BLOCKED, onPlaybackBlocked);
       player.pause?.();
       if (playerRef.current === player) playerRef.current = null;
@@ -171,7 +176,7 @@ export function TwitchHeroPlayer() {
   const showPoster = !canEmbed || scriptFailed;
 
   return (
-    <article className="stream-card" aria-label="BasedCode Twitch stream">
+    <article className={`stream-card ${playbackStarted ? "is-playing" : ""}`} aria-label="BasedCode Twitch stream">
       <Script
         src="https://player.twitch.tv/js/embed/v1.js"
         strategy="afterInteractive"
