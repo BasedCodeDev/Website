@@ -6,6 +6,12 @@ import { FiActivity, FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-ic
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
 import * as localRipple from "./textRipple";
+import {
+  formatExactSocialCount,
+  formatSocialCount,
+  formatSocialMetricLabel,
+} from "./socialStats.mjs";
+import { useSocialStats, type SocialStatKey } from "./useSocialStats";
 
 declare global {
   interface Window {
@@ -16,14 +22,24 @@ declare global {
   }
 }
 
-const socials = [
-  { name: "Twitch", handle: "@basedcode", benefit: "Participate in the work live", href: "https://www.twitch.tv/basedcode", icon: SiTwitch, primary: true },
-  { name: "YouTube", handle: "@BasedCode", benefit: "Watch durable project breakdowns", href: "https://www.youtube.com/@BasedCode", icon: SiYoutube },
-  { name: "Discord", handle: "Community", benefit: "Ask, contribute, and keep building", href: "https://discord.gg/rxJufPTM2", icon: SiDiscord },
-  { name: "TikTok", handle: "@basedcodedev", benefit: "Catch useful moments and findings", href: "https://www.tiktok.com/@basedcodedev", icon: SiTiktok },
-  { name: "Instagram", handle: "@basedcodedev", benefit: "Follow milestones behind the scenes", href: "https://www.instagram.com/basedcodedev/", icon: SiInstagram },
-  { name: "X", handle: "@BasedCodeDev", benefit: "Get fast project and stream updates", href: "https://x.com/BasedCodeDev", icon: SiX },
-  { name: "GitHub", handle: "BasedCodeDev", benefit: "Inspect the code and working tools", href: "https://github.com/BasedCodeDev", icon: SiGithub },
+type SocialLink = {
+  name: string;
+  handle: string;
+  benefit: string;
+  href: string;
+  icon: typeof SiTwitch;
+  primary?: boolean;
+  metric: { key: SocialStatKey; label: "followers" | "subscribers" | "members" };
+};
+
+const socials: SocialLink[] = [
+  { name: "Twitch", handle: "@basedcode", benefit: "Participate in the work live", href: "https://www.twitch.tv/basedcode", icon: SiTwitch, primary: true, metric: { key: "twitch", label: "followers" } },
+  { name: "YouTube", handle: "@BasedCode", benefit: "Watch durable project breakdowns", href: "https://www.youtube.com/@BasedCode", icon: SiYoutube, metric: { key: "youtube", label: "subscribers" } },
+  { name: "Discord", handle: "Community", benefit: "Ask, contribute, and keep building", href: "https://discord.gg/rxJufPTM2", icon: SiDiscord, metric: { key: "discord", label: "members" } },
+  { name: "TikTok", handle: "@basedcodedev", benefit: "Catch useful moments and findings", href: "https://www.tiktok.com/@basedcodedev", icon: SiTiktok, metric: { key: "tiktok", label: "followers" } },
+  { name: "Instagram", handle: "@basedcodedev", benefit: "Follow milestones behind the scenes", href: "https://www.instagram.com/basedcodedev/", icon: SiInstagram, metric: { key: "instagram", label: "followers" } },
+  { name: "X", handle: "@BasedCodeDev", benefit: "Get fast project and stream updates", href: "https://x.com/BasedCodeDev", icon: SiX, metric: { key: "x", label: "followers" } },
+  { name: "GitHub", handle: "BasedCodeDev", benefit: "Inspect the code and working tools", href: "https://github.com/BasedCodeDev", icon: SiGithub, metric: { key: "github", label: "followers" } },
 ];
 
 const projects = [
@@ -59,6 +75,7 @@ const projects = [
 export default function Home() {
   const [light, setLight] = useState(false);
   const [motionEnabled, setMotionEnabled] = useState(true);
+  const socialStats = useSocialStats();
   const heroTitle = useRef<HTMLHeadingElement>(null);
   const setupMotionRef = useRef<((enabled: boolean) => void) | null>(null);
 
@@ -229,13 +246,27 @@ export default function Home() {
             <p>Twitch is where the work happens live. Discord keeps the conversation going, while every other channel carries useful moments, code, and progress between builds.</p>
           </div>
           <div className="social-grid">
-            {socials.map(({ name, benefit, href, icon: Icon, primary }) => (
-              <a className={`social-card ${primary ? "social-primary" : ""}`} href={href} target="_blank" rel="noreferrer" key={name} data-reveal-item>
-                <span className="social-icon"><Icon aria-hidden="true" /></span>
-                <span className="social-copy"><strong>{name}</strong><small>{benefit}</small></span>
-                <FiArrowUpRight className="arrow" aria-hidden="true" />
-              </a>
-            ))}
+            {socials.map(({ name, benefit, href, icon: Icon, primary, metric }) => {
+              const stat = socialStats[metric.key];
+              const statLabel = stat ? formatSocialMetricLabel(stat.label, stat.value) : "";
+              const exactStat = stat ? `${formatExactSocialCount(stat.value)} ${statLabel}` : "";
+
+              return (
+                <a className={`social-card ${primary ? "social-primary" : ""}`} href={href} target="_blank" rel="noreferrer" key={name} data-reveal-item data-stat-key={metric.key}>
+                  <span className="social-icon"><Icon aria-hidden="true" /></span>
+                  <span className="social-copy">
+                    <strong>{name}</strong>
+                    <small>{benefit}</small>
+                    {stat && (
+                      <span className="social-stat" title={exactStat} aria-label={exactStat}>
+                        {formatSocialCount(stat.value)} {statLabel}
+                      </span>
+                    )}
+                  </span>
+                  <FiArrowUpRight className="arrow" aria-hidden="true" />
+                </a>
+              );
+            })}
           </div>
         </section>
 

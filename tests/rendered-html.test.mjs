@@ -27,6 +27,16 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /<footer class="site-footer">/);
   assert.match(html, /Step inside real game and software development\./);
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
+  for (const href of [
+    "https://www.youtube.com/@BasedCode",
+    "https://discord.gg/rxJufPTM2",
+    "https://www.tiktok.com/@basedcodedev",
+    "https://www.instagram.com/basedcodedev/",
+    "https://x.com/BasedCodeDev",
+    "https://github.com/BasedCodeDev",
+  ]) {
+    assert.match(html, new RegExp(href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
   assert.match(html, /Recent broadcasts/);
   assert.match(html, /View all/);
   assert.match(html, /Recent hits/);
@@ -36,6 +46,9 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /On Point/);
   assert.match(html, /https:\/\/brand\.basedcode\.dev\//);
   assert.match(html, /Brand guide/);
+  for (const platform of ["twitch", "youtube", "discord", "tiktok", "instagram", "x", "github"]) {
+    assert.match(html, new RegExp(`data-stat-key="${platform}"`));
+  }
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Building your site/i);
 });
 

@@ -151,7 +151,11 @@ section:not(.hero) { padding: 110px clamp(24px, 7vw, 112px); }
 .social-copy { min-width: 0; display: grid; gap: 4px; }
 .social-copy strong { font-size: .9rem; }
 .social-copy small { color: var(--muted); font-size: .64rem; line-height: 1.4; }
+.social-stat { width: fit-content; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; color: var(--purple); font-size: .58rem; font-weight: 700; letter-spacing: .035em; }
+.social-stat::before { content: ""; width: 5px; height: 5px; flex: 0 0 auto; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
+.site.motion-enabled .social-stat { animation: social-stat-reveal .55s cubic-bezier(.22,1,.36,1) both; }
 .social-primary .social-copy small { color: #d7c9dd; }
+.social-primary .social-stat { color: #fff; }
 .arrow { color: var(--quiet); }
 
 .projects-section { border-top: 1px solid var(--line); background: var(--panel); }
@@ -206,6 +210,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
 @keyframes ambient-shift { 0% { transform: translate3d(-3%, -2%, 0) scale(1); opacity: .32; } 48% { transform: translate3d(4%, 1%, 0) scale(1.05); opacity: .48; } 100% { transform: translate3d(-1%, 4%, 0) scale(1.02); opacity: .38; } }
 @keyframes grid-breathe { 0%,100% { opacity: .1; } 50% { opacity: .17; } }
 @keyframes pulse { 0%,100% { opacity: .65; transform: scale(.9); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes social-stat-reveal { from { opacity: 0; transform: translate3d(0, 5px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
 @media (max-width: 1360px) {
   .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 145px; }
@@ -285,6 +290,8 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .vod-choice { flex-basis: 176px; grid-template-columns: 68px minmax(0, 1fr); gap: 6px; padding: 5px; }
   .vod-thumbnail { width: 68px; }
   .vod-choice-copy strong { font-size: .5rem; }
+  .social-card { gap: 13px; padding: 19px 16px; }
+  .social-icon { width: 44px; height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -302,4 +309,5 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .site:not(.motion-forced) .about-photo,
   .site:not(.motion-forced) .about-cta,
   .site:not(.motion-forced) .site-footer { animation-duration: 20s !important; }
+  .social-stat { animation: none !important; }
 }
