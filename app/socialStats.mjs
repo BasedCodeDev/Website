@@ -40,6 +40,13 @@ export const SOCIAL_STAT_DEFINITIONS = Object.freeze({
     label: "followers",
     responseType: "pulse",
     url: pulseProfileUrl("https://www.instagram.com/basedcodedev/"),
+    fallbacks: Object.freeze([
+      Object.freeze({
+        expectedHandle: "basedcodedev",
+        responseType: "digitalbyte",
+        url: "https://api.digitalbyte.cc/instagram/newtucktools/basedcodedev",
+      }),
+    ]),
   }),
   x: Object.freeze({
     platform: "x",
@@ -88,11 +95,16 @@ export function parsePulseProfile(payload, acceptedPlatforms, expectedHandle) {
   return parseSocialCount(payload.followers);
 }
 
-export function parseSocialStatPayload(platform, payload) {
-  const definition = SOCIAL_STAT_DEFINITIONS[platform];
-  if (!definition) return null;
+export function parseDigitalByteProfile(payload, expectedHandle) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  if (payload.status !== true) return null;
+  if (normaliseHandle(payload.username) !== normaliseHandle(expectedHandle)) return null;
 
-  switch (definition.responseType) {
+  return parseSocialCount(payload.user_followers);
+}
+
+function parseSocialStatSource(source, payload) {
+  switch (source.responseType) {
     case "text":
       return parseSocialCount(payload);
     case "discord":
@@ -106,12 +118,19 @@ export function parseSocialStatPayload(platform, payload) {
     case "pulse":
       return parsePulseProfile(
         payload,
-        definition.acceptedPlatforms,
-        definition.expectedHandle,
+        source.acceptedPlatforms,
+        source.expectedHandle,
       );
+    case "digitalbyte":
+      return parseDigitalByteProfile(payload, source.expectedHandle);
     default:
       return null;
   }
+}
+
+export function parseSocialStatPayload(platform, payload) {
+  const definition = SOCIAL_STAT_DEFINITIONS[platform];
+  return definition ? parseSocialStatSource(definition, payload) : null;
 }
 
 export function formatSocialCount(value, locale = "en-AU") {
@@ -168,40 +187,49 @@ export async function fetchSocialStat(platform, options = {}) {
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   if (!definition || typeof fetchImpl !== "function") return null;
 
-  const controller = new AbortController();
   const parentSignal = options.signal;
-  const forwardAbort = () => controller.abort();
-  if (parentSignal?.aborted) controller.abort();
-  else parentSignal?.addEventListener("abort", forwardAbort, { once: true });
+  const sources = [definition, ...(definition.fallbacks ?? [])];
 
-  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 6000);
+  for (const source of sources) {
+    if (parentSignal?.aborted) return null;
 
-  try {
-    const response = await fetchImpl(definition.url, {
-      cache: "no-store",
-      credentials: "omit",
-      headers: { Accept: definition.responseType === "text" ? "text/plain" : "application/json" },
-      referrerPolicy: "no-referrer",
-      signal: controller.signal,
-    });
-    if (!response.ok) return null;
+    const controller = new AbortController();
+    const forwardAbort = () => controller.abort();
+    parentSignal?.addEventListener("abort", forwardAbort, { once: true });
+    const timeout = setTimeout(
+      () => controller.abort(),
+      options.timeoutMs ?? source.timeoutMs ?? 6000,
+    );
 
-    const payload = definition.responseType === "text"
-      ? await response.text()
-      : await response.json();
-    const value = parseSocialStatPayload(platform, payload);
-    if (value === null) return null;
+    try {
+      const response = await fetchImpl(source.url, {
+        cache: "no-store",
+        credentials: "omit",
+        headers: { Accept: source.responseType === "text" ? "text/plain" : "application/json" },
+        referrerPolicy: "no-referrer",
+        signal: controller.signal,
+      });
+      if (!response.ok) continue;
 
-    return {
-      platform,
-      value,
-      label: definition.label,
-      fetchedAt: Date.now(),
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
-    parentSignal?.removeEventListener("abort", forwardAbort);
+      const payload = source.responseType === "text"
+        ? await response.text()
+        : await response.json();
+      const value = parseSocialStatSource(source, payload);
+      if (value === null) continue;
+
+      return {
+        platform,
+        value,
+        label: definition.label,
+        fetchedAt: Date.now(),
+      };
+    } catch {
+      // Try the next provider when the current source is unavailable or invalid.
+    } finally {
+      clearTimeout(timeout);
+      parentSignal?.removeEventListener("abort", forwardAbort);
+    }
   }
+
+  return null;
 }
