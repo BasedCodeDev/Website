@@ -21,6 +21,7 @@ type TwitchPlayerInstance = {
   setChannel: (channel: string) => void;
   setMuted: (muted: boolean) => void;
   setVideo: (video: string, time?: number) => void;
+  play: () => void;
   pause?: () => void;
 };
 
@@ -30,6 +31,7 @@ type TwitchPlayerConstructor = {
   ONLINE: string;
   OFFLINE: string;
   PLAY: string;
+  PLAYING: string;
   PLAYBACK_BLOCKED: string;
 };
 
@@ -136,6 +138,8 @@ export function TwitchHeroPlayer() {
   const recentVodsRef = useRef<Vod[]>([]);
   const requestRef = useRef<Promise<Vod[]> | null>(null);
   const liveSeenRef = useRef(false);
+  const playbackRequestRef = useRef(0);
+  const autoplayRetryRef = useRef(false);
 
   const resolveRecentVods = useCallback(async (force = false) => {
     if (!force && recentVodsRef.current.length) return recentVodsRef.current;
@@ -191,10 +195,11 @@ export function TwitchHeroPlayer() {
     playerRef.current = player;
 
     const showLatestVod = async (refresh: boolean) => {
+      const playbackRequest = ++playbackRequestRef.current;
       setStatus("loading");
       const vods = await resolveRecentVods(refresh);
       const vod = vods[0];
-      if (playerRef.current !== player) return;
+      if (playerRef.current !== player || playbackRequest !== playbackRequestRef.current) return;
       if (vod) {
         player.setVideo(`v${vod.id}`);
         player.setMuted(true);
@@ -206,20 +211,39 @@ export function TwitchHeroPlayer() {
       }
     };
 
-    const onReady = () => player.setMuted(true);
+    const startMutedPlayback = () => {
+      player.setMuted(true);
+      player.play();
+    };
+    const onReady = () => {
+      autoplayRetryRef.current = false;
+      startMutedPlayback();
+    };
     const onOnline = () => {
+      playbackRequestRef.current += 1;
+      autoplayRetryRef.current = false;
       liveSeenRef.current = true;
       setActiveVodId(null);
       setStatus("live");
+      startMutedPlayback();
     };
     const onOffline = () => void showLatestVod(liveSeenRef.current);
     const onPlay = () => setPlaybackStarted(true);
-    const onPlaybackBlocked = () => player.setMuted(true);
+    const onPlaying = () => {
+      autoplayRetryRef.current = false;
+      setPlaybackStarted(true);
+    };
+    const onPlaybackBlocked = () => {
+      if (autoplayRetryRef.current) return;
+      autoplayRetryRef.current = true;
+      startMutedPlayback();
+    };
 
     player.addEventListener(Player.READY, onReady);
     player.addEventListener(Player.ONLINE, onOnline);
     player.addEventListener(Player.OFFLINE, onOffline);
     player.addEventListener(Player.PLAY, onPlay);
+    player.addEventListener(Player.PLAYING, onPlaying);
     player.addEventListener(Player.PLAYBACK_BLOCKED, onPlaybackBlocked);
 
     return () => {
@@ -227,6 +251,7 @@ export function TwitchHeroPlayer() {
       player.removeEventListener?.(Player.ONLINE, onOnline);
       player.removeEventListener?.(Player.OFFLINE, onOffline);
       player.removeEventListener?.(Player.PLAY, onPlay);
+      player.removeEventListener?.(Player.PLAYING, onPlaying);
       player.removeEventListener?.(Player.PLAYBACK_BLOCKED, onPlaybackBlocked);
       player.pause?.();
       if (playerRef.current === player) playerRef.current = null;
@@ -257,6 +282,7 @@ export function TwitchHeroPlayer() {
   const selectVod = (vod: Vod) => {
     const player = playerRef.current;
     if (!player) return;
+    playbackRequestRef.current += 1;
     player.setVideo(`v${vod.id}`);
     player.setMuted(true);
     setActiveVodId(vod.id);
@@ -264,7 +290,7 @@ export function TwitchHeroPlayer() {
   };
 
   return (
-    <article className={`stream-card ${playbackStarted ? "is-playing" : ""}`} aria-label="BasedCode Twitch stream">
+    <article className={`stream-card ${playbackStarted ? "is-playing" : ""} ${status === "live" ? "is-live" : ""}`} aria-label="BasedCode Twitch stream">
       <Script
         src="https://player.twitch.tv/js/embed/v1.js"
         strategy="afterInteractive"
@@ -280,7 +306,7 @@ export function TwitchHeroPlayer() {
 
       <div className="stream-topline">
         <span><FiRadio aria-hidden="true" /> TWITCH / BASEDCODE</span>
-        <span className={`stream-status status-${status}`}><i aria-hidden="true" />{statusLabel}</span>
+        <span className={`stream-status status-${status}`} role="status" aria-live="polite"><i aria-hidden="true" />{statusLabel}</span>
       </div>
 
       <div className={`stream-window ${showPoster ? "is-poster" : ""}`}>

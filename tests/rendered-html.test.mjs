@@ -94,3 +94,18 @@ test("exports successful recent BasedCode YouTube Shorts", async () => {
     assert.ok(shorts[index - 1].viewCount >= shorts[index].viewCount);
   }
 });
+
+test("keeps live Twitch autoplay and visible live feedback", async () => {
+  const [playerSource, styles] = await Promise.all([
+    readFile(new URL("../app/TwitchHeroPlayer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(playerSource, /autoplay:\s*true/);
+  assert.match(playerSource, /muted:\s*true/);
+  assert.match(playerSource, /const onOnline = \(\) => \{[\s\S]*?startMutedPlayback\(\);[\s\S]*?\};/);
+  assert.match(playerSource, /status === "live" \? "is-live"/);
+  assert.match(playerSource, /role="status" aria-live="polite"/);
+  assert.match(styles, /\.stream-card\.is-live\s*\{/);
+  assert.match(styles, /\.stream-status\.status-live\s*\{/);
+});

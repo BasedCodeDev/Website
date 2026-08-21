@@ -70,12 +70,14 @@ button { font: inherit; }
 .stream-card:hover { transform: rotate(0) translateY(-6px); border-color: rgba(255,255,255,.62); }
 .stream-card.is-playing { transform: none; }
 .stream-card.is-playing:hover { transform: translateY(-6px); }
+.stream-card.is-live { border-color: rgba(255,255,255,.82); box-shadow: 0 0 0 1px rgba(181,104,194,.55), 0 38px 110px rgba(18,16,20,.42), 0 0 42px rgba(131,71,143,.24); animation: live-frame 3.6s ease-in-out infinite; }
 .stream-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: .62rem; color: #d7c9dd; }
 .stream-topline span:first-child { display: inline-flex; align-items: center; gap: 7px; }
-.stream-status { display: inline-flex; align-items: center; gap: 7px; }
+.stream-status { display: inline-flex; align-items: center; gap: 7px; min-height: 27px; padding: 0 9px; border: 1px solid transparent; border-radius: 999px; font-weight: 800; letter-spacing: .08em; transition: color .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease; }
 .stream-status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .62; }
-.stream-status.status-live { color: #fff; }
-.stream-status.status-live i { box-shadow: 0 0 0 5px rgba(255,255,255,.11); animation: pulse 2.2s ease-in-out infinite; }
+.stream-status.status-live { border-color: rgba(255,255,255,.82); color: #2d1540; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.11); }
+.stream-status.status-live i { color: #83478f; box-shadow: 0 0 0 5px rgba(131,71,143,.13); animation: pulse 1.8s ease-in-out infinite; }
+.site:not(.motion-forced) .stream-card.is-live, .site:not(.motion-forced) .stream-status.status-live i { animation: none; }
 .stream-window { position: relative; width: 100%; aspect-ratio: 16 / 9; display: grid; place-items: center; overflow: hidden; margin: 15px 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: #121014; }
 .stream-window::before { content: ""; position: absolute; inset: -45%; background: conic-gradient(from 45deg, #1d0a25, #83478f, #472458, #a553b5, #1d0a25); animation: field-turn 18s linear infinite; filter: blur(28px); opacity: .72; }
 .twitch-player-host { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; background: #121014; }
@@ -211,6 +213,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
 @keyframes ambient-shift { 0% { transform: translate3d(-3%, -2%, 0) scale(1); opacity: .32; } 48% { transform: translate3d(4%, 1%, 0) scale(1.05); opacity: .48; } 100% { transform: translate3d(-1%, 4%, 0) scale(1.02); opacity: .38; } }
 @keyframes grid-breathe { 0%,100% { opacity: .1; } 50% { opacity: .17; } }
 @keyframes pulse { 0%,100% { opacity: .65; transform: scale(.9); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes live-frame { 0%,100% { box-shadow: 0 0 0 1px rgba(181,104,194,.42), 0 38px 110px rgba(18,16,20,.42), 0 0 32px rgba(131,71,143,.16); } 50% { box-shadow: 0 0 0 1px rgba(255,255,255,.68), 0 38px 110px rgba(18,16,20,.42), 0 0 52px rgba(165,83,181,.3); } }
 @keyframes social-stat-reveal { from { opacity: 0; transform: translate3d(0, 5px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
 @media (max-width: 1360px) {
@@ -303,6 +306,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .site:not(.motion-forced) .status-dot,
   .site:not(.motion-forced) .stream-window::before,
   .site:not(.motion-forced) .stream-loading span,
+  .site:not(.motion-forced) .stream-card.is-live,
   .site:not(.motion-forced) .stream-status.status-live i { animation: none !important; }
   .site:not(.motion-forced) .hero,
   .site:not(.motion-forced) .social-primary,
