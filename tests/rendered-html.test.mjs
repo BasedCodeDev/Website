@@ -81,7 +81,8 @@ test("exports small Twitch thumbnails for recent VODs", async () => {
 test("exports successful recent BasedCode YouTube Shorts", async () => {
   const shorts = JSON.parse(await readFile(new URL("../dist/client/youtube-shorts.json", import.meta.url), "utf8"));
 
-  assert.ok(Array.isArray(shorts) && shorts.length > 2);
+  assert.ok(Array.isArray(shorts));
+  assert.equal(shorts.length, 15);
   for (const short of shorts) {
     assert.match(short.id, /^[A-Za-z0-9_-]{11}$/);
     assert.equal(short.url, `https://www.youtube.com/shorts/${short.id}`);

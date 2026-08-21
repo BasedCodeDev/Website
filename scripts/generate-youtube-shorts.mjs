@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 const SHORTS_PAGE_URL = "https://www.youtube.com/@BasedCode/shorts?hl=en&gl=AU";
 const OUTPUT_FILE = new URL("../public/youtube-shorts.json", import.meta.url);
 const RECENT_POOL_SIZE = 24;
-const SHORTS_LIMIT = 8;
+const SHORTS_LIMIT = 15;
 
 async function readExistingShorts() {
   try {

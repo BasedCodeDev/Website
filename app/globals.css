@@ -117,7 +117,8 @@ button { font: inherit; }
 .shorts-scroll-button:hover, .shorts-scroll-button:focus-visible { transform: translateY(-2px); border-color: var(--purple); color: #fff; background: var(--purple); outline: none; }
 .shorts-all { display: inline-flex; align-items: center; gap: 6px; margin-left: 5px; color: var(--muted); font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: color .2s ease; }
 .shorts-all:hover { color: var(--ink); }
-.shorts-rail { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 2px 2px 12px; scroll-snap-type: inline mandatory; scrollbar-color: var(--purple) transparent; scrollbar-width: thin; }
+.shorts-rail { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 2px; scroll-snap-type: inline mandatory; scrollbar-width: none; }
+.shorts-rail::-webkit-scrollbar { display: none; }
 .short-card { min-width: clamp(138px, 12vw, 176px); flex: 0 0 clamp(138px, 12vw, 176px); display: grid; align-content: start; gap: 10px; scroll-snap-align: start; }
 .short-card-media { position: relative; aspect-ratio: 9 / 16; display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(145deg, var(--plum), var(--purple)); box-shadow: 0 16px 36px rgba(18,16,20,.18); transition: transform .35s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .35s ease; }
 .short-card-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(18,16,20,.72), transparent 30%); pointer-events: none; }
