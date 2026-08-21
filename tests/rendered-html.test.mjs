@@ -104,6 +104,12 @@ test("keeps live Twitch autoplay and visible live feedback", async () => {
   assert.match(playerSource, /autoplay:\s*true/);
   assert.match(playerSource, /muted:\s*true/);
   assert.match(playerSource, /const onOnline = \(\) => \{[\s\S]*?startMutedPlayback\(\);[\s\S]*?\};/);
+  assert.match(playerSource, /!playerVisible \|\| !scriptReady/);
+  assert.match(playerSource, /visibleRatio >= 0\.5/);
+  assert.match(playerSource, /window\.addEventListener\("scroll", updatePlayerVisibility/);
+  assert.match(playerSource, /document\.addEventListener\("visibilitychange", attemptVisiblePlayback\)/);
+  assert.match(playerSource, /LIVE — PRESS PLAY/);
+  assert.match(playerSource, /!playbackStartedRef\.current\) setAutoplayBlocked\(true\)/);
   assert.match(playerSource, /status === "live" \? "is-live"/);
   assert.match(playerSource, /role="status" aria-live="polite"/);
   assert.match(styles, /\.stream-card\.is-live\s*\{/);

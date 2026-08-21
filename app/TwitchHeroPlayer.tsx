@@ -125,6 +125,7 @@ function VodChoiceContents({ vod, index }: { vod: Vod; index: number }) {
 
 export function TwitchHeroPlayer() {
   const [canEmbed, setCanEmbed] = useState(false);
+  const [playerVisible, setPlayerVisible] = useState(false);
   const [scriptReady, setScriptReady] = useState(() => typeof window !== "undefined" && Boolean(window.Twitch?.Player));
   const [scriptFailed, setScriptFailed] = useState(false);
   const [recentVods, setRecentVods] = useState<Vod[]>([]);
@@ -132,14 +133,18 @@ export function TwitchHeroPlayer() {
   const [resolverFailed, setResolverFailed] = useState(false);
   const [status, setStatus] = useState<PlayerStatus>("loading");
   const [playbackStarted, setPlaybackStarted] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const playerHost = useRef<HTMLDivElement>(null);
+  const streamWindow = useRef<HTMLDivElement>(null);
   const playerRef = useRef<TwitchPlayerInstance | null>(null);
   const recentVodsRef = useRef<Vod[]>([]);
   const requestRef = useRef<Promise<Vod[]> | null>(null);
   const liveSeenRef = useRef(false);
   const playbackRequestRef = useRef(0);
   const autoplayRetryRef = useRef(false);
+  const autoplayFeedbackTimeoutRef = useRef<number | null>(null);
+  const playbackStartedRef = useRef(false);
 
   const resolveRecentVods = useCallback(async (force = false) => {
     if (!force && recentVodsRef.current.length) return recentVodsRef.current;
@@ -178,7 +183,35 @@ export function TwitchHeroPlayer() {
   }, [resolveRecentVods]);
 
   useEffect(() => {
-    if (!canEmbed || !scriptReady || !window.Twitch?.Player || !playerHost.current || playerRef.current) return;
+    const element = streamWindow.current;
+    if (!canEmbed || playerVisible || !element) return;
+
+    const updatePlayerVisibility = () => {
+      if (document.visibilityState !== "visible") return;
+      const bounds = element.getBoundingClientRect();
+      const visibleHeight = Math.max(0, Math.min(bounds.bottom, window.innerHeight) - Math.max(bounds.top, 0));
+      const visibleWidth = Math.max(0, Math.min(bounds.right, window.innerWidth) - Math.max(bounds.left, 0));
+      const visibleRatio = bounds.width && bounds.height
+        ? (visibleWidth * visibleHeight) / (bounds.width * bounds.height)
+        : 0;
+      if (visibleRatio >= 0.5) setPlayerVisible(true);
+    };
+
+    updatePlayerVisibility();
+    window.addEventListener("scroll", updatePlayerVisibility, { passive: true });
+    window.addEventListener("resize", updatePlayerVisibility);
+    window.addEventListener("focus", updatePlayerVisibility);
+    document.addEventListener("visibilitychange", updatePlayerVisibility);
+    return () => {
+      window.removeEventListener("scroll", updatePlayerVisibility);
+      window.removeEventListener("resize", updatePlayerVisibility);
+      window.removeEventListener("focus", updatePlayerVisibility);
+      document.removeEventListener("visibilitychange", updatePlayerVisibility);
+    };
+  }, [canEmbed, playerVisible]);
+
+  useEffect(() => {
+    if (!canEmbed || !playerVisible || !scriptReady || !window.Twitch?.Player || !playerHost.current || playerRef.current) return;
 
     const Player = window.Twitch.Player;
     const host = playerHost.current;
@@ -196,6 +229,7 @@ export function TwitchHeroPlayer() {
 
     const showLatestVod = async (refresh: boolean) => {
       const playbackRequest = ++playbackRequestRef.current;
+      setAutoplayBlocked(false);
       setStatus("loading");
       const vods = await resolveRecentVods(refresh);
       const vod = vods[0];
@@ -215,25 +249,49 @@ export function TwitchHeroPlayer() {
       player.setMuted(true);
       player.play();
     };
+    const clearAutoplayFeedbackTimeout = () => {
+      if (autoplayFeedbackTimeoutRef.current === null) return;
+      window.clearTimeout(autoplayFeedbackTimeoutRef.current);
+      autoplayFeedbackTimeoutRef.current = null;
+    };
     const onReady = () => {
       autoplayRetryRef.current = false;
-      startMutedPlayback();
+      player.setMuted(true);
     };
     const onOnline = () => {
       playbackRequestRef.current += 1;
       autoplayRetryRef.current = false;
       liveSeenRef.current = true;
+      setAutoplayBlocked(false);
+      playbackStartedRef.current = false;
+      setPlaybackStarted(false);
       setActiveVodId(null);
       setStatus("live");
       startMutedPlayback();
+      clearAutoplayFeedbackTimeout();
+      autoplayFeedbackTimeoutRef.current = window.setTimeout(() => {
+        if (playerRef.current === player && !playbackStartedRef.current) setAutoplayBlocked(true);
+      }, 1800);
     };
-    const onOffline = () => void showLatestVod(liveSeenRef.current);
-    const onPlay = () => setPlaybackStarted(true);
+    const onOffline = () => {
+      clearAutoplayFeedbackTimeout();
+      void showLatestVod(liveSeenRef.current);
+    };
+    const onPlay = () => {
+      clearAutoplayFeedbackTimeout();
+      playbackStartedRef.current = true;
+      setAutoplayBlocked(false);
+      setPlaybackStarted(true);
+    };
     const onPlaying = () => {
+      clearAutoplayFeedbackTimeout();
       autoplayRetryRef.current = false;
+      playbackStartedRef.current = true;
+      setAutoplayBlocked(false);
       setPlaybackStarted(true);
     };
     const onPlaybackBlocked = () => {
+      setAutoplayBlocked(true);
       if (autoplayRetryRef.current) return;
       autoplayRetryRef.current = true;
       startMutedPlayback();
@@ -253,12 +311,45 @@ export function TwitchHeroPlayer() {
       player.removeEventListener?.(Player.PLAY, onPlay);
       player.removeEventListener?.(Player.PLAYING, onPlaying);
       player.removeEventListener?.(Player.PLAYBACK_BLOCKED, onPlaybackBlocked);
+      clearAutoplayFeedbackTimeout();
       player.pause?.();
       if (playerRef.current === player) playerRef.current = null;
       host.replaceChildren();
       liveSeenRef.current = false;
     };
-  }, [canEmbed, resolveRecentVods, scriptReady]);
+  }, [canEmbed, playerVisible, resolveRecentVods, scriptReady]);
+
+  useEffect(() => {
+    const element = streamWindow.current;
+    if (!canEmbed || !playerVisible || !scriptReady || !element) return;
+
+    const attemptVisiblePlayback = () => {
+      const player = playerRef.current;
+      if (!player || document.visibilityState !== "visible") return;
+
+      const bounds = element.getBoundingClientRect();
+      const visibleHeight = Math.max(0, Math.min(bounds.bottom, window.innerHeight) - Math.max(bounds.top, 0));
+      const visibleWidth = Math.max(0, Math.min(bounds.right, window.innerWidth) - Math.max(bounds.left, 0));
+      const visibleRatio = bounds.width && bounds.height
+        ? (visibleWidth * visibleHeight) / (bounds.width * bounds.height)
+        : 0;
+      if (visibleRatio < 0.5) return;
+
+      player.setMuted(true);
+      player.play();
+    };
+
+    window.addEventListener("scroll", attemptVisiblePlayback, { passive: true });
+    window.addEventListener("resize", attemptVisiblePlayback);
+    document.addEventListener("visibilitychange", attemptVisiblePlayback);
+    window.addEventListener("focus", attemptVisiblePlayback);
+    return () => {
+      window.removeEventListener("scroll", attemptVisiblePlayback);
+      window.removeEventListener("resize", attemptVisiblePlayback);
+      document.removeEventListener("visibilitychange", attemptVisiblePlayback);
+      window.removeEventListener("focus", attemptVisiblePlayback);
+    };
+  }, [canEmbed, playerVisible, scriptReady]);
 
   useEffect(() => {
     if (!canEmbed || scriptReady || scriptFailed) return;
@@ -273,7 +364,7 @@ export function TwitchHeroPlayer() {
 
   const activeVod = recentVods.find((vod) => vod.id === activeVodId) ?? recentVods[0] ?? null;
   const activeVodIndex = activeVod ? recentVods.findIndex((vod) => vod.id === activeVod.id) : -1;
-  const statusLabel = status === "live" ? "LIVE NOW" : status === "vod" ? `VOD ${String(activeVodIndex + 1).padStart(2, "0")}` : status === "offline" ? "OFFLINE" : status === "error" ? "OPEN TWITCH" : "CONNECTING";
+  const statusLabel = status === "live" ? (autoplayBlocked ? "LIVE — PRESS PLAY" : "LIVE NOW") : status === "vod" ? `VOD ${String(activeVodIndex + 1).padStart(2, "0")}` : status === "offline" ? "OFFLINE" : status === "error" ? "OPEN TWITCH" : "CONNECTING";
   const destination = status === "live" ? CHANNEL_URL : activeVod?.url ?? VIDEOS_URL;
   const destinationLabel = status === "live" ? "Watch live" : activeVod ? "Open this VOD" : "View broadcasts";
   const displayTitle = status === "live" ? "BasedCode is live." : activeVod?.title ?? (resolverFailed ? "Recent BasedCode broadcasts" : "Finding recent broadcasts…");
@@ -283,8 +374,13 @@ export function TwitchHeroPlayer() {
     const player = playerRef.current;
     if (!player) return;
     playbackRequestRef.current += 1;
+    if (autoplayFeedbackTimeoutRef.current !== null) {
+      window.clearTimeout(autoplayFeedbackTimeoutRef.current);
+      autoplayFeedbackTimeoutRef.current = null;
+    }
     player.setVideo(`v${vod.id}`);
     player.setMuted(true);
+    setAutoplayBlocked(false);
     setActiveVodId(vod.id);
     setStatus("vod");
   };
@@ -309,7 +405,7 @@ export function TwitchHeroPlayer() {
         <span className={`stream-status status-${status}`} role="status" aria-live="polite"><i aria-hidden="true" />{statusLabel}</span>
       </div>
 
-      <div className={`stream-window ${showPoster ? "is-poster" : ""}`}>
+      <div className={`stream-window ${showPoster ? "is-poster" : ""}`} ref={streamWindow}>
         {!showPoster && <div className="twitch-player-host" id="basedcode-twitch-player" ref={playerHost} />}
         {showPoster && (
           <div className="stream-poster">
@@ -322,7 +418,6 @@ export function TwitchHeroPlayer() {
             </div>
           </div>
         )}
-        {!showPoster && status === "loading" && <div className="stream-loading" aria-live="polite"><span aria-hidden="true" />Connecting to Twitch…</div>}
       </div>
 
       <div className="vod-browser">
