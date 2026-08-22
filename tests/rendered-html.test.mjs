@@ -80,6 +80,7 @@ test("exports small Twitch thumbnails for recent VODs", async () => {
 
 test("exports successful recent BasedCode YouTube Shorts", async () => {
   const shorts = JSON.parse(await readFile(new URL("../dist/client/youtube-shorts.json", import.meta.url), "utf8"));
+  const html = await readFile(exportedIndex, "utf8");
 
   assert.ok(Array.isArray(shorts));
   assert.equal(shorts.length, 15);
@@ -93,6 +94,13 @@ test("exports successful recent BasedCode YouTube Shorts", async () => {
   for (let index = 1; index < shorts.length; index += 1) {
     assert.ok(shorts[index - 1].viewCount >= shorts[index].viewCount);
   }
+
+  for (const short of shorts) {
+    if (short.viewText) assert.doesNotMatch(html, new RegExp(`>${short.viewText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}<`));
+  }
+
+  assert.match(html, /data-shorts-state="fallback"/);
+  assert.match(html, /Recent BasedCode Shorts\./);
 });
 
 test("keeps live Twitch autoplay and visible live feedback", async () => {
