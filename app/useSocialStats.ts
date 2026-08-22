@@ -13,6 +13,10 @@ export type SocialStat = {
   platform: SocialStatKey;
   value: number;
   label: string;
+  secondary?: {
+    value: number;
+    label: string;
+  };
   fetchedAt: number;
 };
 

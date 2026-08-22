@@ -249,7 +249,17 @@ export default function Home() {
             {socials.map(({ name, benefit, href, icon: Icon, primary, metric }) => {
               const stat = socialStats[metric.key];
               const statLabel = stat ? formatSocialMetricLabel(stat.label, stat.value) : "";
-              const exactStat = stat ? `${formatExactSocialCount(stat.value)} ${statLabel}` : "";
+              const secondaryLabel = stat?.secondary
+                ? formatSocialMetricLabel(stat.secondary.label, stat.secondary.value)
+                : "";
+              const exactStat = stat
+                ? [
+                    `${formatExactSocialCount(stat.value)} ${statLabel}`,
+                    stat.secondary
+                      ? `${formatExactSocialCount(stat.secondary.value)} ${secondaryLabel}`
+                      : null,
+                  ].filter(Boolean).join("; ")
+                : "";
 
               return (
                 <a className={`social-card ${primary ? "social-primary" : ""}`} href={href} target="_blank" rel="noreferrer" key={name} data-reveal-item data-stat-key={metric.key}>
@@ -260,6 +270,12 @@ export default function Home() {
                     {stat && (
                       <span className="social-stat" title={exactStat} aria-label={exactStat}>
                         {formatSocialCount(stat.value)} {statLabel}
+                        {stat.secondary && (
+                          <>
+                            <span className="social-stat-separator" aria-hidden="true">·</span>
+                            {formatSocialCount(stat.secondary.value)} {secondaryLabel}
+                          </>
+                        )}
                       </span>
                     )}
                   </span>

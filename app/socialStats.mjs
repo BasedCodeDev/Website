@@ -1,4 +1,4 @@
-export const SOCIAL_STATS_CACHE_KEY = "basedcode-social-stats-v1";
+export const SOCIAL_STATS_CACHE_KEY = "basedcode-social-stats-v2";
 export const SOCIAL_STATS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 const pulseProfileUrl = (profileUrl) =>
@@ -13,11 +13,17 @@ export const SOCIAL_STAT_DEFINITIONS = Object.freeze({
   }),
   youtube: Object.freeze({
     platform: "youtube",
-    acceptedPlatforms: Object.freeze(["youtube"]),
-    expectedHandle: "BasedCode",
     label: "subscribers",
-    responseType: "pulse",
-    url: pulseProfileUrl("https://www.youtube.com/@BasedCode"),
+    responseType: "socialcounts-youtube",
+    url: "https://api.socialcounts.org/youtube-live-subscriber-count/UCGE_y8dIQMLQPl-bAj-TNfA",
+    fallbacks: Object.freeze([
+      Object.freeze({
+        acceptedPlatforms: Object.freeze(["youtube"]),
+        expectedHandle: "BasedCode",
+        responseType: "pulse",
+        url: pulseProfileUrl("https://www.youtube.com/@BasedCode"),
+      }),
+    ]),
   }),
   discord: Object.freeze({
     platform: "discord",
@@ -103,6 +109,21 @@ export function parseDigitalByteProfile(payload, expectedHandle) {
   return parseSocialCount(payload.user_followers);
 }
 
+export function parseSocialCountsYouTube(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const apiCounters = payload.counters?.api;
+  if (!apiCounters || typeof apiCounters !== "object" || Array.isArray(apiCounters)) return null;
+
+  const subscribers = parseSocialCount(apiCounters.subscriberCount);
+  const views = parseSocialCount(apiCounters.viewCount);
+  if (subscribers === null || views === null) return null;
+
+  return {
+    value: subscribers,
+    secondary: { value: views, label: "views" },
+  };
+}
+
 function parseSocialStatSource(source, payload) {
   switch (source.responseType) {
     case "text":
@@ -123,6 +144,8 @@ function parseSocialStatSource(source, payload) {
       );
     case "digitalbyte":
       return parseDigitalByteProfile(payload, source.expectedHandle);
+    case "socialcounts-youtube":
+      return parseSocialCountsYouTube(payload);
     default:
       return null;
   }
@@ -157,13 +180,26 @@ function normaliseCachedStat(platform, value, now) {
   if (count === null || value.platform !== platform || value.label !== definition.label) return null;
   if (!Number.isFinite(fetchedAt) || fetchedAt > now || now - fetchedAt >= SOCIAL_STATS_CACHE_TTL_MS) return null;
 
-  return { platform, value: count, label: definition.label, fetchedAt };
+  let secondary;
+  if (value.secondary !== undefined) {
+    const secondaryCount = parseSocialCount(value.secondary?.value);
+    if (platform !== "youtube" || secondaryCount === null || value.secondary?.label !== "views") return null;
+    secondary = { value: secondaryCount, label: "views" };
+  }
+
+  return {
+    platform,
+    value: count,
+    label: definition.label,
+    ...(secondary ? { secondary } : {}),
+    fetchedAt,
+  };
 }
 
 export function readFreshSocialStatsCache(storage, now = Date.now()) {
   try {
     const cached = JSON.parse(storage.getItem(SOCIAL_STATS_CACHE_KEY) ?? "null");
-    if (!cached || cached.version !== 1 || !cached.stats || typeof cached.stats !== "object") return {};
+    if (!cached || cached.version !== 2 || !cached.stats || typeof cached.stats !== "object") return {};
 
     return Object.fromEntries(SOCIAL_STAT_KEYS.flatMap((platform) => {
       const stat = normaliseCachedStat(platform, cached.stats[platform], now);
@@ -176,7 +212,7 @@ export function readFreshSocialStatsCache(storage, now = Date.now()) {
 
 export function writeSocialStatsCache(storage, stats) {
   try {
-    storage.setItem(SOCIAL_STATS_CACHE_KEY, JSON.stringify({ version: 1, stats }));
+    storage.setItem(SOCIAL_STATS_CACHE_KEY, JSON.stringify({ version: 2, stats }));
   } catch {
     // Browser storage can be unavailable in private or restricted contexts.
   }
@@ -214,13 +250,16 @@ export async function fetchSocialStat(platform, options = {}) {
       const payload = source.responseType === "text"
         ? await response.text()
         : await response.json();
-      const value = parseSocialStatSource(source, payload);
-      if (value === null) continue;
+      const parsed = parseSocialStatSource(source, payload);
+      if (parsed === null) continue;
+      const value = typeof parsed === "number" ? parsed : parsed.value;
+      const secondary = typeof parsed === "number" ? undefined : parsed.secondary;
 
       return {
         platform,
         value,
         label: definition.label,
+        ...(secondary ? { secondary } : {}),
         fetchedAt: Date.now(),
       };
     } catch {

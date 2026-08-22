@@ -10,6 +10,7 @@ import {
   parseDigitalByteProfile,
   parsePulseProfile,
   parseSocialCount,
+  parseSocialCountsYouTube,
   parseSocialStatPayload,
   readFreshSocialStatsCache,
   writeSocialStatsCache,
@@ -19,11 +20,12 @@ test("parses supported social count response shapes", () => {
   assert.equal(parseSocialStatPayload("twitch", "3,834"), 3834);
   assert.equal(parseSocialStatPayload("discord", { approximate_member_count: 128 }), 128);
   assert.equal(parseSocialStatPayload("github", { followers: 42 }), 42);
-  assert.equal(parseSocialStatPayload("youtube", {
-    platform: "youtube",
-    handle: "@BasedCode",
-    followers: 271,
-  }), 271);
+  assert.deepEqual(parseSocialStatPayload("youtube", {
+    counters: { api: { subscriberCount: 276, viewCount: 66088 } },
+  }), {
+    value: 276,
+    secondary: { value: 66088, label: "views" },
+  });
 });
 
 test("rejects malformed, negative, fractional, and mismatched statistics", () => {
@@ -58,6 +60,19 @@ test("validates DigitalByte Instagram profiles and preserves a valid zero", () =
   }, "basedcodedev"), null);
 });
 
+test("validates SocialCounts YouTube subscribers and total views", () => {
+  assert.deepEqual(parseSocialCountsYouTube({
+    counters: { api: { subscriberCount: 0, viewCount: 0 } },
+  }), {
+    value: 0,
+    secondary: { value: 0, label: "views" },
+  });
+  assert.equal(parseSocialCountsYouTube({ counters: { api: { subscriberCount: 10 } } }), null);
+  assert.equal(parseSocialCountsYouTube({ counters: { api: { subscriberCount: -1, viewCount: 20 } } }), null);
+  assert.equal(parseSocialCountsYouTube({ counters: { api: { subscriberCount: 10, viewCount: 1.5 } } }), null);
+  assert.equal(parseSocialCountsYouTube({ counters: { estimation: { subscriberCount: 10, viewCount: 20 } } }), null);
+});
+
 test("formats compact, exact, zero, and singular statistics", () => {
   assert.equal(formatSocialCount(3834), "3.8K");
   assert.equal(formatExactSocialCount(3834), "3,834");
@@ -75,12 +90,28 @@ test("reads only fresh, validated cache entries", () => {
   };
   const stats = {
     twitch: { platform: "twitch", value: 3834, label: "followers", fetchedAt: now - 1000 },
+    youtube: { platform: "youtube", value: 276, label: "subscribers", secondary: { value: 66088, label: "views" }, fetchedAt: now - 1000 },
     github: { platform: "github", value: 12, label: "followers", fetchedAt: now - SOCIAL_STATS_CACHE_TTL_MS },
   };
 
   writeSocialStatsCache(storage, stats);
-  assert.equal(JSON.parse(entries.get(SOCIAL_STATS_CACHE_KEY)).version, 1);
-  assert.deepEqual(readFreshSocialStatsCache(storage, now), { twitch: stats.twitch });
+  assert.equal(JSON.parse(entries.get(SOCIAL_STATS_CACHE_KEY)).version, 2);
+  assert.deepEqual(readFreshSocialStatsCache(storage, now), { twitch: stats.twitch, youtube: stats.youtube });
+});
+
+test("rejects incompatible and malformed secondary metrics from cache", () => {
+  const now = 1_800_000_000_000;
+  const storage = {
+    getItem: () => JSON.stringify({
+      version: 2,
+      stats: {
+        twitch: { platform: "twitch", value: 10, label: "followers", secondary: { value: 20, label: "views" }, fetchedAt: now - 1000 },
+        youtube: { platform: "youtube", value: 10, label: "subscribers", secondary: { value: -1, label: "views" }, fetchedAt: now - 1000 },
+      },
+    }),
+  };
+
+  assert.deepEqual(readFreshSocialStatsCache(storage, now), {});
 });
 
 test("returns null when a social request times out", async () => {
@@ -104,6 +135,53 @@ test("normalises a successful request and rejects an API failure", async () => {
   assert.equal(success.label, "followers");
   assert.ok(Number.isFinite(success.fetchedAt));
   assert.equal(failure, null);
+});
+
+test("loads YouTube subscribers and total views from SocialCounts without calling Pulse", async () => {
+  const urls = [];
+  const result = await fetchSocialStat("youtube", {
+    fetchImpl: async (url) => {
+      urls.push(url);
+      return {
+        ok: true,
+        json: async () => ({
+          counters: { api: { subscriberCount: 276, viewCount: 66088 } },
+        }),
+      };
+    },
+  });
+
+  assert.equal(result.platform, "youtube");
+  assert.equal(result.value, 276);
+  assert.equal(result.label, "subscribers");
+  assert.deepEqual(result.secondary, { value: 66088, label: "views" });
+  assert.equal(urls.length, 1);
+  assert.match(urls[0], /^https:\/\/api\.socialcounts\.org\//);
+});
+
+test("falls back to Pulse subscribers when SocialCounts is unavailable", async () => {
+  const urls = [];
+  const result = await fetchSocialStat("youtube", {
+    fetchImpl: async (url) => {
+      urls.push(url);
+      if (url.startsWith("https://api.socialcounts.org/")) return { ok: false, status: 503 };
+      return {
+        ok: true,
+        json: async () => ({
+          platform: "youtube",
+          handle: "@BasedCode",
+          followers: 276,
+        }),
+      };
+    },
+  });
+
+  assert.equal(result.platform, "youtube");
+  assert.equal(result.value, 276);
+  assert.equal(result.label, "subscribers");
+  assert.equal(result.secondary, undefined);
+  assert.equal(urls.length, 2);
+  assert.match(urls[1], /^https:\/\/pulse\.walls\.sh\//);
 });
 
 test("uses Pulse for Instagram without requesting the fallback when it succeeds", async () => {

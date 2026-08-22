@@ -123,3 +123,15 @@ test("keeps live Twitch autoplay and visible live feedback", async () => {
   assert.match(styles, /\.stream-card\.is-live\s*\{/);
   assert.match(styles, /\.stream-status\.status-live\s*\{/);
 });
+
+test("renders compact YouTube subscribers and channel views when available", async () => {
+  const [pageSource, styles] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(pageSource, /stat\.secondary/);
+  assert.match(pageSource, /social-stat-separator/);
+  assert.match(pageSource, /aria-label=\{exactStat\}/);
+  assert.match(styles, /\.social-stat\s*\{[^}]*white-space:\s*nowrap/);
+});
