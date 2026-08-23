@@ -4,6 +4,11 @@ import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiArrowUpRight, FiRadio } from "react-icons/fi";
 import { SiTwitch } from "react-icons/si";
+import {
+  fetchTwitchVideoMetadata,
+  formatTwitchDuration,
+  normaliseTwitchThumbnailUrl,
+} from "./twitchMetadata.mjs";
 
 const CHANNEL = "basedcode";
 const CHANNEL_URL = "https://www.twitch.tv/basedcode";
@@ -12,7 +17,17 @@ const RECENT_VODS_URL = "https://decapi.me/twitch/videos/basedcode?limit=5&separ
 // At 640px, the hero and card gutters leave enough room for a compliant 16:9 player.
 const EMBED_MIN_VIEWPORT = 640;
 
-type Vod = { id: string; title: string; url: string; thumbnailUrl?: string };
+type Vod = {
+  id: string;
+  title: string;
+  url: string;
+  thumbnailUrl?: string;
+  description?: string;
+  category?: string;
+  publishedAt?: string;
+  durationSeconds?: number;
+  viewCount?: number;
+};
 type PlayerStatus = "loading" | "live" | "vod" | "offline" | "error";
 
 type TwitchPlayerInstance = {
@@ -61,14 +76,19 @@ export function parseLatestVod(response: string): Vod | null {
   return parseRecentVods(response)[0] ?? null;
 }
 
-async function requestCurrentVods(): Promise<Vod[]> {
-  const response = await fetch(RECENT_VODS_URL, { cache: "no-store" });
+async function requestCurrentVods(signal?: AbortSignal): Promise<Vod[]> {
+  const response = await fetch(RECENT_VODS_URL, {
+    cache: "no-store",
+    credentials: "omit",
+    referrerPolicy: "no-referrer",
+    signal,
+  });
   if (!response.ok) throw new Error(`Recent VOD request failed with ${response.status}`);
   return parseRecentVods(await response.text());
 }
 
-async function requestCachedVods(): Promise<Vod[]> {
-  const response = await fetch("/twitch-vods.json", { cache: "no-store" });
+async function requestCachedVods(signal?: AbortSignal): Promise<Vod[]> {
+  const response = await fetch("/twitch-vods.json", { cache: "no-store", signal });
   if (!response.ok) throw new Error(`VOD thumbnail cache failed with ${response.status}`);
 
   const data: unknown = await response.json();
@@ -85,15 +105,16 @@ async function requestCachedVods(): Promise<Vod[]> {
       || vod.url !== `https://www.twitch.tv/videos/${vod.id}`
     ) return [];
 
-    const thumbnailUrl = typeof vod.thumbnailUrl === "string" && vod.thumbnailUrl.startsWith("https://static-cdn.jtvnw.net/")
-      ? vod.thumbnailUrl
-      : undefined;
+    const thumbnailUrl = normaliseTwitchThumbnailUrl(vod.thumbnailUrl);
     return [{ id: vod.id, title: vod.title, url: vod.url, thumbnailUrl }];
   }).slice(0, 5);
 }
 
-async function requestRecentVods(): Promise<Vod[]> {
-  const [currentResult, cacheResult] = await Promise.allSettled([requestCurrentVods(), requestCachedVods()]);
+async function requestRecentVods(signal?: AbortSignal): Promise<Vod[]> {
+  const [currentResult, cacheResult] = await Promise.allSettled([
+    requestCurrentVods(signal),
+    requestCachedVods(signal),
+  ]);
   const cachedVods = cacheResult.status === "fulfilled" ? cacheResult.value : [];
   if (currentResult.status === "rejected") {
     if (cachedVods.length) return cachedVods;
@@ -101,22 +122,48 @@ async function requestRecentVods(): Promise<Vod[]> {
   }
 
   const cachedById = new Map(cachedVods.map((vod) => [vod.id, vod]));
-  return currentResult.value.map((vod) => ({ ...vod, thumbnailUrl: cachedById.get(vod.id)?.thumbnailUrl }));
+  let liveMetadata = new Map<string, Partial<Vod>>();
+  try {
+    liveMetadata = await fetchTwitchVideoMetadata(currentResult.value, { signal });
+  } catch {
+    // The current VOD links still work when Twitch's browser metadata is unavailable.
+  }
+
+  return currentResult.value.map((vod) => {
+    const metadata = liveMetadata.get(vod.id) ?? {};
+    return {
+      ...vod,
+      ...metadata,
+      title: metadata.title ?? vod.title,
+      thumbnailUrl: metadata.thumbnailUrl ?? cachedById.get(vod.id)?.thumbnailUrl,
+    };
+  });
 }
 
 function VodChoiceContents({ vod, index }: { vod: Vod; index: number }) {
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
+  const duration = formatTwitchDuration(vod.durationSeconds);
+
   return (
     <>
       <span className="vod-thumbnail" aria-hidden="true">
-        {vod.thumbnailUrl ? (
+        {vod.thumbnailUrl && failedThumbnailUrl !== vod.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={vod.thumbnailUrl} alt="" width="160" height="90" loading="lazy" decoding="async" />
+          <img
+            src={vod.thumbnailUrl}
+            alt=""
+            width="320"
+            height="180"
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailedThumbnailUrl(vod.thumbnailUrl ?? null)}
+          />
         ) : (
           <SiTwitch />
         )}
       </span>
       <span className="vod-choice-copy">
-        <small>{String(index + 1).padStart(2, "0")}</small>
+        <small>{String(index + 1).padStart(2, "0")}{duration ? ` / ${duration}` : ""}</small>
         <strong>{vod.title}</strong>
       </span>
     </>
@@ -140,6 +187,7 @@ export function TwitchHeroPlayer() {
   const playerRef = useRef<TwitchPlayerInstance | null>(null);
   const recentVodsRef = useRef<Vod[]>([]);
   const requestRef = useRef<Promise<Vod[]> | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
   const liveSeenRef = useRef(false);
   const playbackRequestRef = useRef(0);
   const autoplayRetryRef = useRef(false);
@@ -150,7 +198,11 @@ export function TwitchHeroPlayer() {
     if (!force && recentVodsRef.current.length) return recentVodsRef.current;
     if (!force && requestRef.current) return requestRef.current;
 
-    const request = requestRecentVods()
+    if (force) requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+
+    const request = requestRecentVods(controller.signal)
       .then((vods) => {
         recentVodsRef.current = vods;
         setRecentVods(vods);
@@ -167,7 +219,10 @@ export function TwitchHeroPlayer() {
         return cachedVods;
       })
       .finally(() => {
-        requestRef.current = null;
+        if (requestControllerRef.current === controller) {
+          requestRef.current = null;
+          requestControllerRef.current = null;
+        }
       });
 
     requestRef.current = request;
@@ -179,7 +234,10 @@ export function TwitchHeroPlayer() {
     updateEmbedMode();
     window.addEventListener("resize", updateEmbedMode);
     void resolveRecentVods();
-    return () => window.removeEventListener("resize", updateEmbedMode);
+    return () => {
+      window.removeEventListener("resize", updateEmbedMode);
+      requestControllerRef.current?.abort();
+    };
   }, [resolveRecentVods]);
 
   useEffect(() => {
@@ -370,6 +428,15 @@ export function TwitchHeroPlayer() {
   const displayTitle = status === "live" ? "BasedCode is live." : activeVod?.title ?? (resolverFailed ? "Recent BasedCode broadcasts" : "Finding recent broadcasts…");
   const showPoster = !canEmbed || scriptFailed;
 
+  const describeVod = (vod: Vod) => [
+    vod.title,
+    vod.description,
+    vod.category ? `Category: ${vod.category}` : undefined,
+    vod.durationSeconds !== undefined ? `Duration: ${formatTwitchDuration(vod.durationSeconds)}` : undefined,
+    vod.viewCount !== undefined ? `${vod.viewCount.toLocaleString()} views` : undefined,
+    vod.publishedAt ? `Published: ${new Date(vod.publishedAt).toLocaleDateString("en-AU", { dateStyle: "medium" })}` : undefined,
+  ].filter(Boolean).join("\n");
+
   const selectVod = (vod: Vod) => {
     const player = playerRef.current;
     if (!player) return;
@@ -437,7 +504,7 @@ export function TwitchHeroPlayer() {
                 key={vod.id}
                 target="_blank"
                 rel="noreferrer"
-                title={vod.title}
+                title={describeVod(vod)}
               >
                 <VodChoiceContents vod={vod} index={index} />
               </a>
@@ -448,7 +515,7 @@ export function TwitchHeroPlayer() {
                 key={vod.id}
                 onClick={() => selectVod(vod)}
                 aria-pressed={activeVodId === vod.id}
-                title={`Load ${vod.title}`}
+                title={`Load ${describeVod(vod)}`}
               >
                 <VodChoiceContents vod={vod} index={index} />
               </button>

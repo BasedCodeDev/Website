@@ -68,7 +68,7 @@ test("keeps required static assets in the Pages artifact", async () => {
   await Promise.all(requiredAssets.map((asset) => access(new URL(asset, projectRoot))));
 });
 
-test("exports small Twitch thumbnails for recent VODs", async () => {
+test("keeps small cached Twitch thumbnails as an outage fallback", async () => {
   const vods = JSON.parse(await readFile(new URL("../dist/client/twitch-vods.json", import.meta.url), "utf8"));
 
   assert.ok(Array.isArray(vods) && vods.length > 1);
