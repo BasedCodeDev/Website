@@ -9,6 +9,33 @@ export const DISPLAYED_SHORTS_LIMIT = 15;
 
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 
+export function getYouTubeShortThumbnailUrl(id) {
+  return VIDEO_ID_PATTERN.test(id) ? `https://i.ytimg.com/vi/${id}/sardefault.jpg` : null;
+}
+
+export function normaliseYouTubeShortThumbnail(value, expectedId) {
+  if (typeof value !== "string" || !VIDEO_ID_PATTERN.test(expectedId)) return null;
+
+  try {
+    const source = new URL(value);
+    const match = source.pathname.match(/^\/vi\/([A-Za-z0-9_-]{11})\/sardefault\.jpg$/);
+    const isYouTubeSource = source.protocol === "https:" && (
+      source.hostname === "i.ytimg.com"
+      || source.searchParams.get("host") === "i.ytimg.com"
+    );
+    if (!isYouTubeSource || match?.[1] !== expectedId) return null;
+
+    const thumbnail = new URL(`https://i.ytimg.com${source.pathname}`);
+    for (const key of ["sqp", "rs"]) {
+      const parameter = source.searchParams.get(key);
+      if (parameter && parameter.length <= 512) thumbnail.searchParams.set(key, parameter);
+    }
+    return thumbnail.href;
+  } catch {
+    return null;
+  }
+}
+
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -80,7 +107,7 @@ export function normalisePipedShorts(payload, retrievedAt = Date.now()) {
       id,
       title,
       url: `https://www.youtube.com/shorts/${id}`,
-      thumbnailUrl: `https://i.ytimg.com/vi/${id}/frame0.jpg`,
+      thumbnailUrl: normaliseYouTubeShortThumbnail(entry.thumbnail, id) ?? getYouTubeShortThumbnailUrl(id),
       viewCount,
       retrievedAt: timestamp,
       recentIndex: recent.length,

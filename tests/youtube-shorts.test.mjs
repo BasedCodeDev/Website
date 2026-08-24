@@ -7,7 +7,9 @@ import {
   fetchLiveYouTubeShorts,
   formatExactYouTubeViewCount,
   formatYouTubeViewCount,
+  getYouTubeShortThumbnailUrl,
   getPipedShortsTabData,
+  normaliseYouTubeShortThumbnail,
   normalisePipedShorts,
 } from "../app/youtubeShorts.mjs";
 
@@ -26,11 +28,13 @@ function videoId(index) {
 }
 
 function shortEntry(index, overrides = {}) {
+  const id = videoId(index);
   return {
     type: "stream",
     isShort: true,
-    url: `/watch?v=${videoId(index)}`,
+    url: `/watch?v=${id}`,
     title: `Short ${index}`,
+    thumbnail: `https://proxy.piped.example/vi/${id}/sardefault.jpg?host=i.ytimg.com&sqp=vertical-${index}&rs=signed-${index}`,
     uploaderName: "Based Code",
     uploaderUrl: `/channel/${YOUTUBE_CHANNEL_ID}/shorts`,
     views: index,
@@ -59,12 +63,26 @@ test("normalises valid Piped Shorts into canonical BasedCode records", () => {
     id: videoId(1),
     title: "Short 1",
     url: `https://www.youtube.com/shorts/${videoId(1)}`,
-    thumbnailUrl: `https://i.ytimg.com/vi/${videoId(1)}/frame0.jpg`,
+    thumbnailUrl: `https://i.ytimg.com/vi/${videoId(1)}/sardefault.jpg?sqp=vertical-1&rs=signed-1`,
     viewCount: 1234,
     retrievedAt: 456,
   });
   assert.equal(formatYouTubeViewCount(1234), "1.2K");
   assert.equal(formatExactYouTubeViewCount(1234), "1,234");
+});
+
+test("uses YouTube's selected vertical artwork and rejects unrelated images", () => {
+  const id = videoId(1);
+  assert.equal(
+    normaliseYouTubeShortThumbnail(
+      `https://proxy.example/vi/${id}/sardefault.jpg?host=i.ytimg.com&rs=signature&sqp=portrait`,
+      id,
+    ),
+    `https://i.ytimg.com/vi/${id}/sardefault.jpg?sqp=portrait&rs=signature`,
+  );
+  assert.equal(normaliseYouTubeShortThumbnail(`https://i.ytimg.com/vi/${id}/frame0.jpg`, id), null);
+  assert.equal(normaliseYouTubeShortThumbnail("https://example.com/image.jpg", id), null);
+  assert.equal(getYouTubeShortThumbnailUrl(id), `https://i.ytimg.com/vi/${id}/sardefault.jpg`);
 });
 
 test("rejects malformed, duplicate, non-Short, wrong-channel, and invalid-count entries", () => {

@@ -8,6 +8,8 @@ import {
   fetchLiveYouTubeShorts,
   formatExactYouTubeViewCount,
   formatYouTubeViewCount,
+  getYouTubeShortThumbnailUrl,
+  normaliseYouTubeShortThumbnail,
 } from "./youtubeShorts.mjs";
 
 const CHANNEL_SHORTS_URL = "https://www.youtube.com/@BasedCode/shorts";
@@ -25,7 +27,9 @@ const fallbackShorts: YouTubeShort[] = (shortsData as YouTubeShort[]).map((short
   id: short.id,
   title: short.title,
   url: short.url,
-  thumbnailUrl: short.thumbnailUrl,
+  thumbnailUrl: normaliseYouTubeShortThumbnail(short.thumbnailUrl, short.id)
+    ?? getYouTubeShortThumbnailUrl(short.id)
+    ?? short.thumbnailUrl,
 }));
 
 export function YouTubeShortsStrip() {
@@ -99,7 +103,18 @@ export function YouTubeShortsStrip() {
           >
             <span className="short-card-media">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={short.thumbnailUrl} alt="" width="405" height="720" loading="lazy" decoding="async" />
+              <img
+                src={short.thumbnailUrl}
+                alt=""
+                width="405"
+                height="720"
+                loading="lazy"
+                decoding="async"
+                onError={(event) => {
+                  const fallback = getYouTubeShortThumbnailUrl(short.id);
+                  if (fallback && event.currentTarget.src !== fallback) event.currentTarget.src = fallback;
+                }}
+              />
               <span className="short-card-meta" aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><SiYoutube /></span>
             </span>
             <span className="short-card-copy">

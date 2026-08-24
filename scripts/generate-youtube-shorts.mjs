@@ -1,4 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
+import {
+  getYouTubeShortThumbnailUrl,
+  normaliseYouTubeShortThumbnail,
+} from "../app/youtubeShorts.mjs";
 
 const SHORTS_PAGE_URL = "https://www.youtube.com/@BasedCode/shorts?hl=en&gl=AU";
 const OUTPUT_FILE = new URL("../public/youtube-shorts.json", import.meta.url);
@@ -38,6 +42,27 @@ function parseViewCount(viewText) {
   return Math.round(value * (multipliers[match[2]] ?? 1));
 }
 
+function extractThumbnail(lockup, id) {
+  const sources = lockup.thumbnailViewModel?.thumbnailViewModel?.image?.sources;
+  if (!Array.isArray(sources)) return getYouTubeShortThumbnailUrl(id);
+
+  const preferredSources = sources
+    .filter((source) => source && typeof source === "object")
+    .map((source) => ({
+      url: normaliseYouTubeShortThumbnail(source.url, id),
+      width: Number.isFinite(source.width) ? source.width : 0,
+      height: Number.isFinite(source.height) ? source.height : 0,
+    }))
+    .filter((source) => source.url)
+    .sort((left, right) => {
+      const leftRatioError = left.height ? Math.abs(left.width / left.height - 9 / 16) : Number.POSITIVE_INFINITY;
+      const rightRatioError = right.height ? Math.abs(right.width / right.height - 9 / 16) : Number.POSITIVE_INFINITY;
+      return leftRatioError - rightRatioError || right.width * right.height - left.width * left.height;
+    });
+
+  return preferredSources[0]?.url ?? getYouTubeShortThumbnailUrl(id);
+}
+
 function extractShorts(initialData) {
   const results = [];
   const seen = new Set();
@@ -62,7 +87,7 @@ function extractShorts(initialData) {
           id,
           title: title.trim(),
           url: `https://www.youtube.com/shorts/${id}`,
-          thumbnailUrl: `https://i.ytimg.com/vi/${id}/frame0.jpg`,
+          thumbnailUrl: extractThumbnail(lockup, id),
           ...(typeof viewText === "string" && viewText.trim() ? { viewText: viewText.trim() } : {}),
         });
       }
