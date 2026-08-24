@@ -10,7 +10,7 @@ export const DISPLAYED_SHORTS_LIMIT = 15;
 const VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 
 export function getYouTubeShortThumbnailUrl(id) {
-  return VIDEO_ID_PATTERN.test(id) ? `https://i.ytimg.com/vi/${id}/sardefault.jpg` : null;
+  return VIDEO_ID_PATTERN.test(id) ? `https://i.ytimg.com/vi/${id}/frame0.jpg` : null;
 }
 
 export function normaliseYouTubeShortThumbnail(value, expectedId) {
@@ -18,7 +18,7 @@ export function normaliseYouTubeShortThumbnail(value, expectedId) {
 
   try {
     const source = new URL(value);
-    const match = source.pathname.match(/^\/vi\/([A-Za-z0-9_-]{11})\/sardefault\.jpg$/);
+    const match = source.pathname.match(/^\/vi\/([A-Za-z0-9_-]{11})\/(?:sardefault|oar2|hq720(?:_\d+)?)\.jpg$/);
     const isYouTubeSource = source.protocol === "https:" && (
       source.hostname === "i.ytimg.com"
       || source.searchParams.get("host") === "i.ytimg.com"
@@ -26,7 +26,7 @@ export function normaliseYouTubeShortThumbnail(value, expectedId) {
     if (!isYouTubeSource || match?.[1] !== expectedId) return null;
 
     const thumbnail = new URL(`https://i.ytimg.com${source.pathname}`);
-    for (const key of ["sqp", "rs"]) {
+    for (const key of ["sqp", "rs", "usqp"]) {
       const parameter = source.searchParams.get(key);
       if (parameter && parameter.length <= 512) thumbnail.searchParams.set(key, parameter);
     }

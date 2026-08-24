@@ -87,7 +87,7 @@ test("exports successful recent BasedCode YouTube Shorts", async () => {
   for (const short of shorts) {
     assert.match(short.id, /^[A-Za-z0-9_-]{11}$/);
     assert.equal(short.url, `https://www.youtube.com/shorts/${short.id}`);
-    assert.match(short.thumbnailUrl, new RegExp(`^https://i\\.ytimg\\.com/vi/${short.id}/sardefault\\.jpg(?:\\?.*)?$`));
+    assert.match(short.thumbnailUrl, new RegExp(`^https://i\\.ytimg\\.com/vi/${short.id}/(?:sardefault|oar2|hq720(?:_\\d+)?|frame0)\\.jpg(?:\\?.*)?$`));
     assert.ok(Number.isInteger(short.viewCount) && short.viewCount >= 0);
   }
 

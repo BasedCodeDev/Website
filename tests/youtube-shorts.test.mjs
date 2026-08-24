@@ -71,7 +71,7 @@ test("normalises valid Piped Shorts into canonical BasedCode records", () => {
   assert.equal(formatExactYouTubeViewCount(1234), "1,234");
 });
 
-test("uses YouTube's selected vertical artwork and rejects unrelated images", () => {
+test("uses YouTube's supplied artwork variants and falls back to the first frame", () => {
   const id = videoId(1);
   assert.equal(
     normaliseYouTubeShortThumbnail(
@@ -80,9 +80,28 @@ test("uses YouTube's selected vertical artwork and rejects unrelated images", ()
     ),
     `https://i.ytimg.com/vi/${id}/sardefault.jpg?sqp=portrait&rs=signature`,
   );
+  assert.equal(
+    normaliseYouTubeShortThumbnail(
+      `https://proxy.example/vi/${id}/hq720_2.jpg?host=i.ytimg.com&rs=signature&sqp=portrait`,
+      id,
+    ),
+    `https://i.ytimg.com/vi/${id}/hq720_2.jpg?sqp=portrait&rs=signature`,
+  );
+  assert.equal(
+    normaliseYouTubeShortThumbnail(
+      `https://proxy.example/vi/${id}/oar2.jpg?host=i.ytimg.com&rs=signature&sqp=portrait&usqp=CCk`,
+      id,
+    ),
+    `https://i.ytimg.com/vi/${id}/oar2.jpg?sqp=portrait&rs=signature&usqp=CCk`,
+  );
   assert.equal(normaliseYouTubeShortThumbnail(`https://i.ytimg.com/vi/${id}/frame0.jpg`, id), null);
   assert.equal(normaliseYouTubeShortThumbnail("https://example.com/image.jpg", id), null);
-  assert.equal(getYouTubeShortThumbnailUrl(id), `https://i.ytimg.com/vi/${id}/sardefault.jpg`);
+  assert.equal(getYouTubeShortThumbnailUrl(id), `https://i.ytimg.com/vi/${id}/frame0.jpg`);
+
+  const [fallbackShort] = normalisePipedShorts({
+    content: [shortEntry(1, { thumbnail: undefined })],
+  });
+  assert.equal(fallbackShort.thumbnailUrl, `https://i.ytimg.com/vi/${id}/frame0.jpg`);
 });
 
 test("rejects malformed, duplicate, non-Short, wrong-channel, and invalid-count entries", () => {
