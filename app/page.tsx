@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } from "react-icons/si";
-import { FiActivity, FiArrowDown, FiArrowUpRight, FiMoon, FiSun } from "react-icons/fi";
+import { FiActivity, FiArrowDown, FiArrowUpRight, FiImage, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
 import * as localRipple from "./textRipple";
@@ -326,7 +326,10 @@ export default function Home() {
               <span><small>02</small>Ask better questions</span>
               <span><small>03</small>Make something real</span>
             </div>
-            <a className="button about-cta" href="https://discord.gg/rxJufPTM2" target="_blank" rel="noreferrer"><SiDiscord aria-hidden="true" /> Join the Discord <FiArrowUpRight aria-hidden="true" /></a>
+            <div className="about-actions">
+              <a className="button about-cta" href="https://discord.gg/rxJufPTM2" target="_blank" rel="noreferrer"><SiDiscord aria-hidden="true" /> Join the Discord <FiArrowUpRight aria-hidden="true" /></a>
+              <a className="button about-media-link" href="/media-kit/"><FiImage aria-hidden="true" /> Media kit <FiArrowUpRight aria-hidden="true" /></a>
+            </div>
           </div>
         </section>
       </main>
@@ -336,6 +339,8 @@ export default function Home() {
         <p>
           Building games, software, and creative technology in public—together.
           <span className="footer-meta">
+            <a href="/media-kit/">Media kit <FiArrowUpRight aria-hidden="true" /></a>
+            <span aria-hidden="true">·</span>
             <a href="https://brand.basedcode.dev/" target="_blank" rel="noreferrer">Brand guide <FiArrowUpRight aria-hidden="true" /></a>
             <span aria-hidden="true">·</span>
             <span className="footer-studio">Studio work at <a href="https://actuator.digital/" target="_blank" rel="noreferrer">Actuator Digital <FiArrowUpRight aria-hidden="true" /></a></span>

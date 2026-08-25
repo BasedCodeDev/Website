@@ -46,10 +46,73 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /On Point/);
   assert.match(html, /https:\/\/brand\.basedcode\.dev\//);
   assert.match(html, /Brand guide/);
+  assert.doesNotMatch(html, /<nav aria-label="Primary navigation">[\s\S]*?href="\/media-kit\/"[\s\S]*?<\/nav>/);
+  assert.match(html, /class="button about-media-link" href="\/media-kit\/"/);
   for (const platform of ["twitch", "youtube", "discord", "tiktok", "instagram", "x", "github"]) {
     assert.match(html, new RegExp(`data-stat-key="${platform}"`));
   }
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Building your site/i);
+});
+
+test("exports the BasedCode media kit with profiles, photos, and music", async () => {
+  const html = await readFile(new URL("../dist/client/media-kit/index.html", import.meta.url), "utf8");
+
+  assert.match(html, /<title>Media Kit — BasedCode<\/title>/i);
+  assert.match(html, /Official assets \/ Press &amp; editorial/);
+  assert.match(html, /Profile pictures/);
+  assert.match(html, /Photo library/);
+  assert.match(html, /Theme music/);
+  assert.match(html, /These tracks may be used in media for the BasedCode brand\./);
+  assert.doesNotMatch(html, /confirm usage rights/i);
+  assert.match(html, /Seb Fehr \/ BasedCode/);
+  assert.match(html, /https:\/\/open\.spotify\.com\/artist\/3JMAWJdzaT0eocfryPKv0M/);
+  assert.match(html, /basedcode-theme-vocals-bella\.wav/);
+  assert.match(html, /basedcode-theme-instrumental-bella\.mp3/);
+  assert.match(html, /seb-fehr-profile-square\.png/);
+  assert.match(html, /seb-fehr-profile-purple\.png/);
+  assert.match(html, /xr-hub-speaking\.jpg/);
+  assert.match(html, /vr-demonstration-blaster\.jpg/);
+});
+
+test("keeps media kit downloads and lightweight previews in the static artifact", async () => {
+  const photoNames = [
+    "seb-live-build-team",
+    "seb-white-studio-portrait",
+    "red-bull-team-stage",
+    "community-art-gallery",
+    "red-bull-team-selfie",
+    "red-bull-team-finale",
+    "red-bull-team-social",
+    "games-event-speakers",
+    "sports-event-portrait",
+    "sports-event-pair",
+    "xr-hub-audience",
+    "xr-hub-speaking",
+    "xr-hub-panel",
+    "xr-hub-panel-speaking",
+    "xr-hub-audience-profile",
+    "vr-demonstration-headset",
+    "vr-demonstration-assisting",
+    "vr-demonstration-blaster",
+    "vr-demonstration-conversation",
+    "basedcode-build-it-live",
+    "xr-hub-speaker-portrait",
+  ];
+  const pngDownloads = new Set(["seb-white-studio-portrait", "basedcode-build-it-live"]);
+  const requiredAssets = [
+    "dist/client/media-kit/previews/seb-fehr-profile-square.webp",
+    "dist/client/media-kit/previews/seb-fehr-profile-purple.webp",
+    "dist/client/media-kit/downloads/seb-fehr-profile-square.png",
+    "dist/client/media-kit/downloads/seb-fehr-profile-purple.png",
+    "dist/client/media-kit/audio/basedcode-theme-vocals-bella.wav",
+    "dist/client/media-kit/audio/basedcode-theme-instrumental-bella.mp3",
+    ...photoNames.flatMap((name) => [
+      `dist/client/media-kit/previews/${name}.webp`,
+      `dist/client/media-kit/downloads/${name}.${pngDownloads.has(name) ? "png" : "jpg"}`,
+    ]),
+  ];
+
+  await Promise.all(requiredAssets.map((asset) => access(new URL(asset, projectRoot))));
 });
 
 test("keeps required static assets in the Pages artifact", async () => {

@@ -38,3 +38,7 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+
+# Original media-kit source files retained outside the public asset tree
+/based-code-theme-vocals-bella.wav
+/based-code-theme-instrumental-bella.mp3
