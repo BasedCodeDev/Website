@@ -156,7 +156,9 @@ export function MediaKitPage() {
   return (
     <div className={`site media-kit ${light ? "light" : "dark"} ${motionEnabled ? "motion-enabled motion-forced" : ""}`}>
       <header className="topbar media-kit-topbar">
-        <Link className="brand" href="/" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></Link>
+        {/* A document navigation is intentional: this site is exported to a static host. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a className="brand" href="/" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Media kit navigation"><a href="#profiles">Profiles</a><a href="#photos">Photos</a><a href="#music">Music</a></nav>
         <div className="topbar-controls">
           <button className="theme-toggle" type="button" onClick={toggleMotion} aria-label={`${motionEnabled ? "Pause" : "Enable"} motion`}>

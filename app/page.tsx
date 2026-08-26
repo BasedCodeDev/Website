@@ -199,7 +199,9 @@ export default function Home() {
   return (
     <div className={`site ${light ? "light" : "dark"} ${motionEnabled ? "motion-enabled motion-forced" : ""}`}>
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
+        {/* A document navigation is intentional: this site is exported to a static host. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a className="brand" href="/" aria-label="BasedCode home"><span>Based</span>Code<span className="slash">/</span></a>
         <nav aria-label="Primary navigation"><a href="#socials">Start here</a><a href="#projects">Projects</a><a href="#about">About</a></nav>
         <div className="topbar-controls">
           <button className="theme-toggle" type="button" onClick={toggleMotion} aria-label={`${motionEnabled ? "Pause" : "Enable"} motion`}>

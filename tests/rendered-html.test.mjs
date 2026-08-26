@@ -25,6 +25,7 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /class="hero-word">play\.<\/span>/);
   assert.match(html, /class="hero-word">learn\.<\/span>/);
   assert.match(html, /<footer class="site-footer">/);
+  assert.match(html, /<header class="topbar"><a class="brand" href="\/" aria-label="BasedCode home">/);
   assert.match(html, /Step inside real game and software development\./);
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
   for (const href of [
@@ -58,6 +59,7 @@ test("exports the BasedCode media kit with profiles, photos, and music", async (
   const html = await readFile(new URL("../dist/client/media-kit/index.html", import.meta.url), "utf8");
 
   assert.match(html, /<title>Media Kit — BasedCode<\/title>/i);
+  assert.match(html, /<header class="topbar media-kit-topbar"><a class="brand" href="\/" aria-label="BasedCode home">/);
   assert.match(html, /Official assets \/ Press &amp; editorial/);
   assert.match(html, /Profile pictures/);
   assert.match(html, /Photo library/);
