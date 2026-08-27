@@ -25,6 +25,10 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /class="hero-word">play\.<\/span>/);
   assert.match(html, /class="hero-word">learn\.<\/span>/);
   assert.match(html, /<footer class="site-footer">/);
+  assert.equal((html.match(/data-page-section="true"/g) ?? []).length, 5);
+  assert.match(html, /aria-label="Page section navigation"/);
+  assert.match(html, /aria-label="No previous section"/);
+  assert.match(html, /aria-label="Next section: Recent hits"/);
   assert.match(html, /<header class="topbar"><a class="brand" href="\/" aria-label="BasedCode home">/);
   assert.match(html, /Step inside real game and software development\./);
   assert.match(html, /https:\/\/www\.twitch\.tv\/basedcode/);
@@ -45,9 +49,11 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /Not Monsters/);
   assert.match(html, /Based Stream Tools/);
   assert.match(html, /On Point/);
+  assert.match(html, /VR GAME \/ ACTUATOR GAMES/);
+  assert.doesNotMatch(html, /VR GAME \/ ACTUATOR DIGITAL/);
   assert.match(html, /https:\/\/brand\.basedcode\.dev\//);
   assert.match(html, /Brand guide/);
-  assert.doesNotMatch(html, /<nav aria-label="Primary navigation">[\s\S]*?href="\/media-kit\/"[\s\S]*?<\/nav>/);
+  assert.match(html, /<nav aria-label="Primary navigation"><a href="#socials">Start here<\/a><a href="#projects">Projects<\/a><a href="#about">About<\/a><\/nav>/);
   assert.match(html, /class="button about-media-link" href="\/media-kit\/"/);
   for (const platform of ["twitch", "youtube", "discord", "tiktok", "instagram", "x", "github"]) {
     assert.match(html, new RegExp(`data-stat-key="${platform}"`));

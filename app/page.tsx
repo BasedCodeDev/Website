@@ -5,6 +5,7 @@ import { SiDiscord, SiGithub, SiInstagram, SiTiktok, SiTwitch, SiX, SiYoutube } 
 import { FiActivity, FiArrowDown, FiArrowUpRight, FiImage, FiMoon, FiSun } from "react-icons/fi";
 import { TwitchHeroPlayer } from "./TwitchHeroPlayer";
 import { YouTubeShortsStrip } from "./YouTubeShortsStrip";
+import { SectionNavigator } from "./SectionNavigator";
 import * as localRipple from "./textRipple";
 import {
   formatExactSocialCount,
@@ -64,7 +65,7 @@ const projects = [
   {
     index: "03",
     name: "On Point",
-    type: "VR GAME / ACTUATOR DIGITAL",
+    type: "VR GAME / ACTUATOR GAMES",
     description: "An arcade-inspired VR first-person shooter packed with rapid-fire, WarioWare-style shooting minigames.",
     href: "https://onpoint.games/",
     image: "/projects/on-point-environment.jpg",
@@ -214,7 +215,7 @@ export default function Home() {
       </header>
 
       <main id="top">
-        <section className="hero" aria-labelledby="hero-title">
+        <section className="hero" aria-labelledby="hero-title" data-page-section data-page-section-label="Welcome">
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-copy">
             <p className="eyebrow"><span className="status-dot" /> Building in public</p>
@@ -241,7 +242,7 @@ export default function Home() {
 
         <YouTubeShortsStrip />
 
-        <section className="social-section" id="socials" aria-labelledby="social-title" data-reveal-section>
+        <section className="social-section" id="socials" aria-labelledby="social-title" data-reveal-section data-page-section data-page-section-label="Find the signal">
           <div className="section-heading" data-reveal-item>
             <p className="eyebrow" data-ripple data-section-ripple data-duration="1000">01 / Find the signal</p>
             <h2 id="social-title">Watch. Follow.<br /><span className="no-wrap">Build with us.</span></h2>
@@ -288,7 +289,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="projects-section" id="projects" aria-labelledby="projects-title" data-reveal-section>
+        <section className="projects-section" id="projects" aria-labelledby="projects-title" data-reveal-section data-page-section data-page-section-label="Current projects">
           <div className="section-heading horizontal" data-reveal-item>
             <div><p className="eyebrow" data-ripple data-section-ripple data-duration="1000">02 / Current projects</p><h2 id="projects-title">Things we’re<br />making real.</h2></div>
             <p>Real games and tools where experiments, trade-offs, and useful lessons have somewhere concrete to land.</p>
@@ -307,7 +308,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section" id="about" aria-labelledby="about-title" data-reveal-section>
+        <section className="about-section" id="about" aria-labelledby="about-title" data-reveal-section data-page-section data-page-section-label="Building in public">
           <div className="about-visual" data-reveal-item>
             <div className="about-photo">
               <img src="/about/seb-live-build.jpg" alt="Seb working with fellow developers during a live PC build event." loading="lazy" />
@@ -335,6 +336,8 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      <SectionNavigator />
 
       <footer className="site-footer">
         <a className="brand" href="#top"><span>Based</span>Code<span className="slash">/</span></a>

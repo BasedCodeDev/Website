@@ -65,7 +65,10 @@ export function YouTubeShortsStrip() {
   return (
     <section
       className="shorts-section"
+      id="shorts"
       aria-labelledby="shorts-title"
+      data-page-section
+      data-page-section-label="Recent hits"
       data-shorts-state={hasLiveData ? "live" : "fallback"}
       data-reveal-section
       data-reveal-stagger="65"
