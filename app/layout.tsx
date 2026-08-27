@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basedcode.dev"),
-  title: "BasedCode — Together, we build.",
+  title: "BasedCode - Together, we build.",
   description: "Step inside real game and software development. Watch the decisions, ask questions, and bring useful lessons back to your own work.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: {

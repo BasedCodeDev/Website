@@ -8,7 +8,7 @@ const exportedIndex = new URL("../dist/client/index.html", import.meta.url);
 test("exports the BasedCode homepage for static hosting", async () => {
   const html = await readFile(exportedIndex, "utf8");
 
-  assert.match(html, /<title>BasedCode — Together, we build\.<\/title>/i);
+  assert.match(html, /<title>BasedCode \| Together, we build\.<\/title>/i);
   assert.match(html, /<script[^>]+src="\/text-ripple\.js"/i);
   assert.match(html, /aria-label="Pause motion"/i);
   assert.match(html, /site dark motion-enabled motion-forced/);
