@@ -8,7 +8,7 @@ const exportedIndex = new URL("../dist/client/index.html", import.meta.url);
 test("exports the BasedCode homepage for static hosting", async () => {
   const html = await readFile(exportedIndex, "utf8");
 
-  assert.match(html, /<title>BasedCode \| Together, we build\.<\/title>/i);
+  assert.match(html, /<title>BasedCode - Together, we build\.<\/title>/i);
   assert.match(html, /<script[^>]+src="\/text-ripple\.js"/i);
   assert.match(html, /aria-label="Pause motion"/i);
   assert.match(html, /site dark motion-enabled motion-forced/);
@@ -195,8 +195,15 @@ test("keeps live Twitch autoplay and visible live feedback", async () => {
   assert.match(playerSource, /LIVE — PRESS PLAY/);
   assert.match(playerSource, /!playbackStartedRef\.current\) setAutoplayBlocked\(true\)/);
   assert.match(playerSource, /status === "live" \? "is-live"/);
+  assert.match(playerSource, /onPointerEnter=\{handleCardPointerMove\}/);
+  assert.match(playerSource, /onPointerMove=\{handleCardPointerMove\}/);
+  assert.match(playerSource, /event\.pointerType === "touch"/);
   assert.match(playerSource, /role="status" aria-live="polite"/);
   assert.match(styles, /\.stream-card\.is-live\s*\{/);
+  assert.match(styles, /\.stream-card\.is-pointer-active::before/);
+  assert.match(styles, /rotateX\(var\(--stream-tilt-x\)\) rotateY\(var\(--stream-tilt-y\)\)/);
+  assert.match(styles, /\.stream-card\.is-playing\.is-pointer-active > \.vod-browser/);
+  assert.match(styles, /\.stream-card\.is-playing > \.stream-window\s*\{\s*transform: none;/);
   assert.match(styles, /\.stream-status\.status-live\s*\{/);
 });
 

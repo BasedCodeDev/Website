@@ -66,10 +66,25 @@ button { font: inherit; }
 .hero-socials a { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; color: rgba(255,255,255,.78); background: rgba(18,16,20,.18); font-size: .82rem; backdrop-filter: blur(8px); transition: transform .25s cubic-bezier(.22,1,.36,1), color .2s ease, border-color .2s ease, background .2s ease; }
 .hero-socials a:hover, .hero-socials a:focus-visible { transform: translateY(-3px); border-color: #fff; color: #2d1540; background: #fff; outline: none; }
 
-.stream-card { position: relative; z-index: 1; width: 100%; display: block; padding: 18px; border: 1px solid rgba(255,255,255,.3); border-radius: 20px; background: rgba(18,16,20,.65); box-shadow: 0 38px 110px rgba(18,16,20,.42); backdrop-filter: blur(16px); transform: rotate(.75deg); transition: transform .5s cubic-bezier(.22,1,.36,1), border-color .25s ease; }
-.stream-card:hover { transform: rotate(0) translateY(-6px); border-color: rgba(255,255,255,.62); }
-.stream-card.is-playing { transform: none; }
-.stream-card.is-playing:hover { transform: translateY(-6px); }
+.stream-card { --stream-tilt-x: 0deg; --stream-tilt-y: 0deg; --stream-resting-rotate: .75deg; --stream-lift: 0px; --stream-pointer-x: 50%; --stream-pointer-y: 50%; position: relative; z-index: 1; isolation: isolate; width: 100%; display: block; padding: 18px; border: 1px solid rgba(255,255,255,.3); border-radius: 20px; background: rgba(18,16,20,.65); box-shadow: 0 38px 110px rgba(18,16,20,.42); backdrop-filter: blur(16px); transform: perspective(1400px) translate3d(0,var(--stream-lift),0) rotateX(var(--stream-tilt-x)) rotateY(var(--stream-tilt-y)) rotateZ(var(--stream-resting-rotate)); transform-style: preserve-3d; transition: transform .5s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .35s ease; will-change: transform; }
+.stream-card::before { content: ""; position: absolute; z-index: 3; inset: 1px; border-radius: inherit; pointer-events: none; opacity: 0; background: radial-gradient(circle at var(--stream-pointer-x) var(--stream-pointer-y), rgba(255,255,255,.18), transparent 34%); mix-blend-mode: screen; transition: opacity .35s ease; }
+.stream-card::after { content: ""; position: absolute; z-index: 0; inset: 6px -5px -6px 5px; border: 1px solid rgba(214,176,224,.28); border-radius: inherit; pointer-events: none; opacity: .5; transform: perspective(1000px) rotateX(var(--stream-tilt-x)) rotateY(var(--stream-tilt-y)) translateZ(-12px); transition: transform .22s ease-out, opacity .3s ease, border-color .3s ease; }
+.stream-card:hover { --stream-resting-rotate: 0deg; --stream-lift: -5px; border-color: rgba(255,255,255,.62); box-shadow: 0 46px 124px rgba(18,16,20,.48); }
+.stream-card.is-pointer-active { transition: transform .12s linear, border-color .25s ease, box-shadow .35s ease; }
+.stream-card.is-pointer-active::before { opacity: .62; }
+.stream-card.is-pointer-active::after { border-color: rgba(255,255,255,.5); opacity: .78; transition: transform .12s linear, opacity .3s ease, border-color .3s ease; }
+.stream-card.is-playing { --stream-resting-rotate: 0deg; transform: perspective(1400px) translate3d(0,var(--stream-lift),0); transform-style: flat; }
+.stream-card.is-playing:hover { --stream-lift: -5px; }
+.stream-card > .stream-topline, .stream-card > .stream-window, .stream-card > .vod-browser { position: relative; z-index: 1; transform: translateZ(0); transition: transform .5s cubic-bezier(.22,1,.36,1); }
+@media (hover: hover) and (pointer: fine) {
+  .stream-card:not(.is-playing) > .stream-topline { transform: translateZ(12px); }
+  .stream-card:not(.is-playing) > .stream-window { transform: translateZ(22px); }
+  .stream-card:not(.is-playing) > .vod-browser { transform: translateZ(15px); }
+  .stream-card:not(.is-playing) .vod-thumbnail { transform: translateZ(8px); }
+  .stream-card.is-playing.is-pointer-active > .stream-topline { transform: perspective(900px) translateZ(8px) rotateX(var(--stream-tilt-x)) rotateY(var(--stream-tilt-y)); }
+  .stream-card.is-playing.is-pointer-active > .vod-browser { transform: perspective(900px) translateZ(10px) rotateX(var(--stream-tilt-x)) rotateY(var(--stream-tilt-y)); }
+}
+.stream-card.is-playing > .stream-window { transform: none; }
 .stream-card.is-live { border-color: rgba(255,255,255,.82); box-shadow: 0 0 0 1px rgba(181,104,194,.55), 0 38px 110px rgba(18,16,20,.42), 0 0 42px rgba(131,71,143,.24); animation: live-frame 3.6s ease-in-out infinite; }
 .stream-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: .62rem; color: #d7c9dd; }
 .stream-topline span:first-child { display: inline-flex; align-items: center; gap: 7px; }
@@ -230,7 +245,7 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
 
 @media (max-width: 1360px) {
   .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 145px; }
-  .stream-card { width: min(100%, 900px); justify-self: center; transform: none; }
+  .stream-card { --stream-resting-rotate: 0deg; width: min(100%, 900px); justify-self: center; }
 }
 @media (max-width: 1120px) {
   .section-heading { grid-template-columns: 1fr 1fr; }
@@ -329,6 +344,12 @@ footer > a:last-child { justify-self: end; display: inline-flex; align-items: ce
   .site:not(.motion-forced) .stream-window::before,
   .site:not(.motion-forced) .stream-card.is-live,
   .site:not(.motion-forced) .stream-status.status-live i { animation: none !important; }
+  .site:not(.motion-forced) .stream-card { --stream-tilt-x: 0deg !important; --stream-tilt-y: 0deg !important; --stream-resting-rotate: 0deg !important; transform-style: flat; }
+  .site:not(.motion-forced) .stream-card::before,
+  .site:not(.motion-forced) .stream-card::after { display: none; }
+  .site:not(.motion-forced) .stream-card > .stream-topline,
+  .site:not(.motion-forced) .stream-card > .stream-window,
+  .site:not(.motion-forced) .stream-card > .vod-browser { transform: none; }
   .site:not(.motion-forced) .hero,
   .site:not(.motion-forced) .social-primary,
   .site:not(.motion-forced) .project-image::after,

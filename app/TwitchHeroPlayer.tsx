@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { FiArrowUpRight, FiRadio } from "react-icons/fi";
 import { SiTwitch } from "react-icons/si";
 import {
@@ -184,6 +185,7 @@ export function TwitchHeroPlayer() {
 
   const playerHost = useRef<HTMLDivElement>(null);
   const streamWindow = useRef<HTMLDivElement>(null);
+  const streamCard = useRef<HTMLElement>(null);
   const playerRef = useRef<TwitchPlayerInstance | null>(null);
   const recentVodsRef = useRef<Vod[]>([]);
   const requestRef = useRef<Promise<Vod[]> | null>(null);
@@ -193,6 +195,44 @@ export function TwitchHeroPlayer() {
   const autoplayRetryRef = useRef(false);
   const autoplayFeedbackTimeoutRef = useRef<number | null>(null);
   const playbackStartedRef = useRef(false);
+  const tiltFrameRef = useRef(0);
+
+  const resetCardTilt = useCallback(() => {
+    window.cancelAnimationFrame(tiltFrameRef.current);
+    const card = streamCard.current;
+    if (!card) return;
+    card.classList.remove("is-pointer-active");
+    card.style.removeProperty("--stream-tilt-x");
+    card.style.removeProperty("--stream-tilt-y");
+    card.style.removeProperty("--stream-pointer-x");
+    card.style.removeProperty("--stream-pointer-y");
+  }, []);
+
+  const handleCardPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (
+      event.pointerType === "touch"
+      || !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      || window.localStorage.getItem("basedcode-motion") === "off"
+    ) return;
+
+    const card = streamCard.current;
+    if (!card) return;
+    const bounds = card.getBoundingClientRect();
+    const horizontal = Math.max(-0.5, Math.min(0.5, (event.clientX - bounds.left) / bounds.width - 0.5));
+    const vertical = Math.max(-0.5, Math.min(0.5, (event.clientY - bounds.top) / bounds.height - 0.5));
+    const pointerX = (horizontal + 0.5) * 100;
+    const pointerY = (vertical + 0.5) * 100;
+
+    window.cancelAnimationFrame(tiltFrameRef.current);
+    tiltFrameRef.current = window.requestAnimationFrame(() => {
+      card.classList.add("is-pointer-active");
+      card.style.setProperty("--stream-tilt-x", `${(-vertical * 3.2).toFixed(2)}deg`);
+      card.style.setProperty("--stream-tilt-y", `${(horizontal * 4).toFixed(2)}deg`);
+      card.style.setProperty("--stream-pointer-x", `${pointerX.toFixed(1)}%`);
+      card.style.setProperty("--stream-pointer-y", `${pointerY.toFixed(1)}%`);
+    });
+  };
 
   const resolveRecentVods = useCallback(async (force = false) => {
     if (!force && recentVodsRef.current.length) return recentVodsRef.current;
@@ -420,6 +460,8 @@ export function TwitchHeroPlayer() {
     return () => window.clearTimeout(timeout);
   }, [canEmbed, scriptFailed, scriptReady]);
 
+  useEffect(() => () => window.cancelAnimationFrame(tiltFrameRef.current), []);
+
   const activeVod = recentVods.find((vod) => vod.id === activeVodId) ?? recentVods[0] ?? null;
   const activeVodIndex = activeVod ? recentVods.findIndex((vod) => vod.id === activeVod.id) : -1;
   const statusLabel = status === "live" ? (autoplayBlocked ? "LIVE — PRESS PLAY" : "LIVE NOW") : status === "vod" ? `VOD ${String(activeVodIndex + 1).padStart(2, "0")}` : status === "offline" ? "OFFLINE" : status === "error" ? "OPEN TWITCH" : "CONNECTING";
@@ -453,7 +495,15 @@ export function TwitchHeroPlayer() {
   };
 
   return (
-    <article className={`stream-card ${playbackStarted ? "is-playing" : ""} ${status === "live" ? "is-live" : ""}`} aria-label="BasedCode Twitch stream">
+    <article
+      className={`stream-card ${playbackStarted ? "is-playing" : ""} ${status === "live" ? "is-live" : ""}`}
+      aria-label="BasedCode Twitch stream"
+      ref={streamCard}
+      onPointerEnter={handleCardPointerMove}
+      onPointerMove={handleCardPointerMove}
+      onPointerLeave={resetCardTilt}
+      onPointerCancel={resetCardTilt}
+    >
       <Script
         src="https://player.twitch.tv/js/embed/v1.js"
         strategy="afterInteractive"
