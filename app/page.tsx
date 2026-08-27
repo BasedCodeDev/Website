@@ -71,6 +71,15 @@ const projects = [
     image: "/projects/on-point-environment.jpg",
     imageAlt: "On Point logo surrounded by colourful arcade cabinets and light guns",
   },
+  {
+    index: "04",
+    name: "Navoke",
+    type: "WORKFLOW AUTOMATION",
+    description: "A local-first desktop app that turns browser workflows into reusable actions people can click and agents can call.",
+    href: "https://navoke.basedcode.dev/",
+    image: "/projects/navoke.webp",
+    imageAlt: "A connected browser workflow becoming a reusable Navoke action",
+  },
 ];
 
 export default function Home() {

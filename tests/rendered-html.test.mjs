@@ -51,6 +51,10 @@ test("exports the BasedCode homepage for static hosting", async () => {
   assert.match(html, /On Point/);
   assert.match(html, /VR GAME \/ ACTUATOR GAMES/);
   assert.doesNotMatch(html, /VR GAME \/ ACTUATOR DIGITAL/);
+  assert.match(html, /Navoke/);
+  assert.match(html, /WORKFLOW AUTOMATION/);
+  assert.match(html, /https:\/\/navoke\.basedcode\.dev\//);
+  assert.match(html, /\/projects\/navoke\.webp/);
   assert.match(html, /https:\/\/brand\.basedcode\.dev\//);
   assert.match(html, /Brand guide/);
   assert.match(html, /<nav aria-label="Primary navigation"><a href="#socials">Start here<\/a><a href="#projects">Projects<\/a><a href="#about">About<\/a><\/nav>/);
@@ -134,6 +138,7 @@ test("keeps required static assets in the Pages artifact", async () => {
     "dist/client/projects/not-monsters.png",
     "dist/client/projects/based-stream-tools.jpg",
     "dist/client/projects/on-point-environment.jpg",
+    "dist/client/projects/navoke.webp",
   ];
 
   await Promise.all(requiredAssets.map((asset) => access(new URL(asset, projectRoot))));
