@@ -89,9 +89,11 @@ test("exports the BasedCode media kit with profiles, photos, and music", async (
 test("keeps media kit downloads and lightweight previews in the static artifact", async () => {
   const photoNames = [
     "seb-live-build-team",
+    "pax-aus-speedrunning",
     "seb-white-studio-portrait",
     "red-bull-team-stage",
     "community-art-gallery",
+    "community-event-trio",
     "red-bull-team-selfie",
     "red-bull-team-finale",
     "red-bull-team-social",
@@ -110,7 +112,7 @@ test("keeps media kit downloads and lightweight previews in the static artifact"
     "basedcode-build-it-live",
     "xr-hub-speaker-portrait",
   ];
-  const pngDownloads = new Set(["seb-white-studio-portrait", "basedcode-build-it-live"]);
+  const pngDownloads = new Set(["seb-white-studio-portrait", "basedcode-build-it-live", "community-event-trio"]);
   const requiredAssets = [
     "dist/client/media-kit/previews/seb-fehr-profile-square.webp",
     "dist/client/media-kit/previews/seb-fehr-profile-purple.webp",

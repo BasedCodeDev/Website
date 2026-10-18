@@ -44,9 +44,11 @@ const profilePictures = [
 
 const photos = [
   { name: "Live build team", category: "Build / Community", preview: "seb-live-build-team.webp", download: "seb-live-build-team.jpg", alt: "Seb seated at a computer with fellow developers during a live build event." },
+  { name: "PAX Aus speedrunning", category: "Event / Gaming", preview: "pax-aus-speedrunning.webp", download: "pax-aus-speedrunning.jpg", alt: "Three participants wearing headsets at the PAX Aus speedrunning area, seated beside a gaming setup." },
   { name: "Studio portrait", category: "Portrait", preview: "seb-white-studio-portrait.webp", download: "seb-white-studio-portrait.png", alt: "Studio portrait of Seb against a white background." },
   { name: "Red Bull team stage", category: "Event / Team", preview: "red-bull-team-stage.webp", download: "red-bull-team-stage.jpg", alt: "Seb and teammates together on a gaming event stage." },
   { name: "Community art", category: "Community", preview: "community-art-gallery.webp", download: "community-art-gallery.jpg", alt: "Seb and friends holding colourful portrait paintings." },
+  { name: "Community event trio", category: "Event / Community", preview: "community-event-trio.webp", download: "community-event-trio.png", alt: "Three attendees posing together outside an event venue." },
   { name: "Team selfie", category: "Event / Team", preview: "red-bull-team-selfie.webp", download: "red-bull-team-selfie.jpg", alt: "A group selfie with Seb and teammates at a gaming event." },
   { name: "Event finale", category: "Event / Team", preview: "red-bull-team-finale.webp", download: "red-bull-team-finale.jpg", alt: "Seb and a team posing in front of a gaming event screen." },
   { name: "Team social", category: "Event / Team", preview: "red-bull-team-social.webp", download: "red-bull-team-social.jpg", alt: "Seb and teammates gathered together at a social event." },
